@@ -61,7 +61,8 @@
   .slide.active{opacity:1;transform:scale(1);transition:opacity 1.3s ease,transform 7s ease}
   .slide svg{width:100%;height:100%;display:block}
   .scrim{position:absolute;inset:0;z-index:2;background:
-    linear-gradient(180deg,rgba(13,24,40,.42) 0%,rgba(13,24,40,.05) 26%,rgba(13,24,40,0) 50%,rgba(13,24,40,.18) 80%,rgba(13,24,40,.4) 100%)}
+    radial-gradient(72% 56% at 50% 40%, rgba(13,24,40,.52) 0%, rgba(13,24,40,.18) 52%, transparent 80%),
+    linear-gradient(180deg,rgba(13,24,40,.34) 0%,rgba(13,24,40,.04) 30%,rgba(13,24,40,.04) 66%,rgba(13,24,40,.34) 100%)}
 
   .hero-content{position:absolute;inset:0;z-index:5;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:90px 24px 0}
   .hero-content .eyebrow{color:#fff;opacity:.9;text-shadow:0 1px 14px rgba(0,0,0,.3)}
@@ -136,6 +137,10 @@
   .rchips{display:flex;flex-wrap:wrap;gap:8px}
   .rchip{border:1px solid var(--line);background:#fff;color:var(--ink-soft);font-family:inherit;font-size:.78rem;padding:8px 14px;border-radius:40px;cursor:pointer;transition:all .3s}
   .rchip:hover{border-color:var(--gold);color:var(--ink)}
+  .rchip.chat{display:inline-flex;align-items:center;gap:8px;text-decoration:none;border-color:var(--gold);color:var(--ink)}
+  .rchip.chat svg{color:var(--gold)}
+  .rchip.chat:hover{background:var(--gold);color:#fff}
+  .rchip.chat:hover svg{color:#fff}
 
   /* sections */
   section.block{padding:120px 0}
@@ -221,7 +226,7 @@
           <path d="M520,760 q60,-10 120,0 t120,0"/>
         </g>
         <!-- sailing yacht -->
-        <g transform="translate(690,360)">
+        <g transform="translate(700,470)">
           <path d="M-8,250 L8,250 L8,40 Z" fill="#16243A" opacity=".9"/>
           <path d="M8,40 L8,250 L150,250 Z" fill="#ffffff"/>
           <path d="M-12,46 L-130,250 L-12,250 Z" fill="#f1f1ee"/>
@@ -249,7 +254,7 @@
         <rect y="560" width="1440" height="340" fill="url(#sea2)"/>
         <ellipse cx="420" cy="600" rx="220" ry="22" fill="#fcefd6" opacity=".4"/>
         <!-- superyacht profile -->
-        <g transform="translate(470,392)">
+        <g transform="translate(470,486)">
           <path d="M0,150 L760,150 C742,196 690,214 560,214 L120,214 C56,214 16,190 0,150 Z" fill="#1d2c44"/>
           <rect x="40" y="150" width="700" height="12" fill="#2b3d57"/>
           <path d="M70,150 L70,96 L560,96 L600,150 Z" fill="#ffffff"/>
@@ -277,7 +282,7 @@
         <ellipse cx="1180" cy="300" rx="220" ry="52" fill="#ffffff" opacity=".5"/>
         <ellipse cx="980" cy="360" rx="150" ry="40" fill="#ffffff" opacity=".45"/>
         <!-- private jet ascending -->
-        <g transform="translate(560,300) rotate(-12)">
+        <g transform="translate(560,372) rotate(-12)">
           <path d="M-260,40 C-150,18 240,18 320,40 C240,62 -150,62 -260,40 Z" fill="#ffffff"/>
           <path d="M320,40 C300,30 300,50 320,40 Z" fill="#16243A"/>
           <path d="M-180,40 L-40,40 L-150,150 L-220,150 Z" fill="#cfdbe4"/>
@@ -407,7 +412,7 @@
       <div class="f-cols">
         <div class="f-col"><h5>Charter</h5><a href="#collection">Yachts</a><a href="#collection">Superyachts</a><a href="#collection">Private jets</a></div>
         <div class="f-col"><h5>House</h5><a href="#">Our approach</a><a href="#access">Discretion</a><a href="#">Enquire</a></div>
-        <div class="f-col"><h5>Contact</h5><a href="#">By appointment</a><a href="#">London &amp; Cornwall</a><a href="#">concierge@bluemeridian.ai</a></div>
+        <div class="f-col"><h5>Concierge</h5><a href="https://wa.me/PLACEHOLDER" target="_blank" rel="noopener">WhatsApp</a><a href="https://t.me/PLACEHOLDER" target="_blank" rel="noopener">Telegram</a><a href="#">concierge@bluemeridian.ai</a><a href="#">By appointment · London</a></div>
       </div>
     </div>
     <div class="f-bottom"><span>© 2026 Blue Meridian. Arranged under MYBA standard terms via vetted partners.</span><span>Quietly, and well.</span></div>
@@ -446,21 +451,18 @@
   const brief=document.getElementById('brief'),thread=document.getElementById('thread');
   function bub(html,cls){const d=document.createElement('div');d.className=cls;d.innerHTML=html;thread.appendChild(d);return d;}
   function run(){
-    const text=brief.value.trim()||'A week on the Amalfi Coast in August, eight guests, with a chef';
+    const text=brief.value.trim();
+    if(!text){brief.focus();return;}
     thread.classList.add('on');thread.innerHTML='';
     bub(text,'b-user');
     const t=bub('<div class="who"><i></i><span>The Concierge</span></div><p class="typing"><span></span><span></span><span></span></p>','b-bot');
     setTimeout(()=>{
       t.querySelector('p').classList.remove('typing');
-      t.querySelector('p').innerHTML='Wonderful — the Amalfi Coast in August suits a crewed motor yacht beautifully. Two quick questions and we\u2019ll shape a shortlist: sail or motor, and a guide budget per week?';
-      const r=document.createElement('div');r.className='rchips';r.style.marginTop='2px';
-      r.innerHTML='<button class="rchip">Motor · €100–150k</button><button class="rchip">Sail · €60–90k</button><button class="rchip">Open to advice</button>';
+      t.querySelector('p').innerHTML='Thank you — your request is noted, and a Blue Meridian specialist will be in touch shortly to shape your shortlist. Prefer to speak now?';
+      const r=document.createElement('div');r.className='rchips';r.style.marginTop='6px';
+      r.innerHTML='<a class="rchip chat" href="https://wa.me/PLACEHOLDER" target="_blank" rel="noopener"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15l-1.4 5 5.1-1.3A10 10 0 1 0 12 2zm0 18a8 8 0 0 1-4.1-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8 8 0 1 1 12 20z"/></svg>WhatsApp the concierge</a><a class="rchip chat" href="https://t.me/PLACEHOLDER" target="_blank" rel="noopener"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M22 4 2.6 11.6c-.9.3-.9 1.5 0 1.8L7 15l2 5c.3.7 1.2.8 1.7.2l2.3-2.4 4.3 3.2c.6.4 1.4.1 1.6-.6L22.9 5c.2-.8-.6-1.4-.9-1z"/></svg>Message on Telegram</a>';
       thread.appendChild(r);
-      r.querySelectorAll('.rchip').forEach(b=>b.addEventListener('click',()=>{
-        bub(b.textContent,'b-user');
-        bub('<div class="who"><i></i><span>The Concierge</span></div><p>Thank you. We\u2019re curating three yachts to your brief and a specialist will be in touch shortly.</p>','b-bot');
-      }));
-    },1500);
+    },1400);
   }
   document.getElementById('go').addEventListener('click',run);
   brief.addEventListener('keydown',e=>{if(e.key==='Enter')run();});
