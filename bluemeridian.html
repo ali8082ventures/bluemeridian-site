@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Blue Meridian — Private Charter</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;1,9..144,400&family=Hanken+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --paper:#F4F2EB;
+    --paper-2:#FBFAF6;
+    --ink:#16243A;
+    --ink-soft:#54627A;
+    --gold:#A07C3B;
+    --gold-soft:#C3A45F;
+    --line:rgba(22,36,58,.14);
+    --line-2:rgba(22,36,58,.08);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--paper);color:var(--ink);
+    font-family:'Hanken Grotesk',system-ui,sans-serif;font-weight:300;
+    line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden;
+  }
+  .serif{font-family:'Fraunces',Georgia,serif}
+  .eyebrow{font-size:.68rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);font-weight:500}
+  .wrap{max-width:1200px;margin:0 auto;padding:0 32px}
+
+  /* header */
+  header{
+    position:fixed;top:0;left:0;right:0;z-index:60;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:22px 40px;transition:all .5s ease;
+  }
+  header .mark{font-family:'Fraunces',serif;font-size:1.5rem;letter-spacing:.4em;font-weight:500;padding-left:.4em;color:#fff;text-decoration:none;transition:color .4s}
+  .logo{display:flex;align-items:center;gap:12px;text-decoration:none;color:#fff;transition:color .4s}
+  .logo svg{flex:none}
+  .logo span{font-family:'Fraunces',serif;font-weight:400;font-size:1.06rem;letter-spacing:.24em;color:currentColor;white-space:nowrap}
+  header.scrolled .logo{color:var(--ink)}
+  @media(max-width:520px){.logo span{font-size:.9rem;letter-spacing:.18em}}
+  header nav{display:flex;gap:34px;align-items:center}
+  header nav a{color:rgba(255,255,255,.85);text-decoration:none;font-size:.82rem;letter-spacing:.05em;transition:color .3s}
+  header nav a:hover{color:#fff}
+  .nav-cta{border:1px solid rgba(255,255,255,.5);padding:9px 20px;font-size:.72rem!important;letter-spacing:.14em;text-transform:uppercase;color:#fff!important}
+  .nav-cta:hover{background:#fff;color:var(--ink)!important;border-color:#fff}
+  header.scrolled{background:var(--paper-2);padding:14px 40px;box-shadow:0 1px 0 var(--line-2)}
+  header.scrolled .mark{color:var(--ink)}
+  header.scrolled nav a{color:var(--ink-soft)}
+  header.scrolled nav a:hover{color:var(--ink)}
+  header.scrolled .nav-cta{border-color:var(--line);color:var(--ink)!important}
+  header.scrolled .nav-cta:hover{background:var(--ink);color:#fff!important;border-color:var(--ink)}
+  @media(max-width:780px){header{padding:16px 20px}header nav .nav-link{display:none}}
+
+  /* hero carousel */
+  .hero{position:relative;height:100vh;min-height:660px;overflow:hidden}
+  .slides{position:absolute;inset:0}
+  .slide{position:absolute;inset:0;opacity:0;transition:opacity 1.3s ease;transform:scale(1.04)}
+  .slide.active{opacity:1;transform:scale(1);transition:opacity 1.3s ease,transform 7s ease}
+  .slide svg{width:100%;height:100%;display:block}
+  .scrim{position:absolute;inset:0;z-index:2;background:
+    linear-gradient(180deg,rgba(13,24,40,.42) 0%,rgba(13,24,40,.05) 26%,rgba(13,24,40,0) 50%,rgba(13,24,40,.18) 80%,rgba(13,24,40,.4) 100%)}
+
+  .hero-content{position:absolute;inset:0;z-index:5;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:90px 24px 0}
+  .hero-content .eyebrow{color:#fff;opacity:.9;text-shadow:0 1px 14px rgba(0,0,0,.3)}
+  .hero-content h1{
+    font-family:'Fraunces',serif;font-weight:300;color:#fff;
+    font-size:clamp(2.6rem,6.4vw,5.4rem);line-height:1.04;letter-spacing:.01em;
+    margin:16px 0 8px;text-shadow:0 2px 30px rgba(0,0,0,.32);max-width:14ch;
+  }
+  .hero-content h1 em{font-style:italic;color:var(--gold-soft)}
+  .hero-content .sub{color:rgba(255,255,255,.92);font-size:1.05rem;margin-bottom:34px;text-shadow:0 1px 16px rgba(0,0,0,.35)}
+
+  /* search bar */
+  .search{
+    width:min(680px,94vw);background:rgba(251,250,246,.94);
+    backdrop-filter:blur(8px);border-radius:3px;
+    box-shadow:0 30px 70px -34px rgba(13,24,40,.55);
+    padding:12px 12px 12px 24px;display:flex;align-items:center;gap:14px;
+  }
+  .search .ico{color:var(--gold);flex:none}
+  .search input{
+    flex:1;border:none;background:transparent;font-family:inherit;font-size:1rem;
+    font-weight:300;color:var(--ink);padding:14px 0;
+  }
+  .search input::placeholder{color:#8a93a2}
+  .search input:focus{outline:none}
+  .search button{
+    flex:none;background:var(--ink);color:#fff;border:none;cursor:pointer;
+    font-family:'Hanken Grotesk';font-weight:600;font-size:.74rem;letter-spacing:.14em;
+    text-transform:uppercase;padding:15px 26px;border-radius:2px;transition:background .3s;
+  }
+  .search button:hover{background:var(--gold)}
+  .hint{margin-top:14px;color:rgba(255,255,255,.85);font-size:.8rem;letter-spacing:.02em;text-shadow:0 1px 10px rgba(0,0,0,.4)}
+
+  /* carousel controls */
+  .cats{position:absolute;left:0;right:0;bottom:30px;z-index:6;display:flex;justify-content:center;gap:10px;flex-wrap:wrap;padding:0 16px}
+  .cat{
+    background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.4);
+    color:#fff;font-family:inherit;font-size:.74rem;letter-spacing:.08em;
+    padding:9px 18px;border-radius:40px;cursor:pointer;backdrop-filter:blur(4px);
+    transition:all .35s;display:flex;align-items:center;gap:8px;
+  }
+  .cat:hover{background:rgba(255,255,255,.22)}
+  .cat.on{background:#fff;color:var(--ink);border-color:#fff}
+  .cat .tag{font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);font-weight:600}
+  .cat.on .tag{color:var(--gold)}
+  .caption{position:absolute;left:40px;bottom:92px;z-index:6;color:#fff;text-align:left;text-shadow:0 1px 14px rgba(0,0,0,.4)}
+  .caption .nm{font-family:'Fraunces',serif;font-size:1.2rem;font-weight:400}
+  .caption .meta{font-size:.78rem;letter-spacing:.06em;color:rgba(255,255,255,.82)}
+  .arrows{position:absolute;inset:0;z-index:6;display:flex;align-items:center;justify-content:space-between;padding:0 18px;pointer-events:none}
+  .arrows button{pointer-events:auto;width:46px;height:46px;border-radius:50%;border:1px solid rgba(255,255,255,.45);background:rgba(255,255,255,.1);color:#fff;cursor:pointer;font-size:1rem;backdrop-filter:blur(4px);transition:all .3s}
+  .arrows button:hover{background:#fff;color:var(--ink)}
+  @media(max-width:780px){
+    .caption{display:none}.arrows{display:none}
+    .cats{bottom:22px}
+    .search{flex-wrap:wrap;padding:8px 8px 8px 18px}
+    .search input{flex:1 1 100%;padding:10px 0}
+    .search button{flex:1 1 100%;padding:14px}
+  }
+
+  /* thread (concierge reply) */
+  .thread{width:min(680px,94vw);margin-top:18px;display:none;flex-direction:column;gap:14px;text-align:left;
+    background:rgba(251,250,246,.96);border-radius:3px;padding:24px 26px;box-shadow:0 30px 70px -34px rgba(13,24,40,.55)}
+  .thread.on{display:flex}
+  .b-user{color:var(--ink-soft);font-style:italic;border-left:2px solid var(--gold);padding-left:12px;font-size:.95rem}
+  .b-bot .who{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+  .b-bot .who i{width:6px;height:6px;border-radius:50%;background:var(--gold);display:inline-block}
+  .b-bot .who span{font-size:.62rem;letter-spacing:.22em;text-transform:uppercase;color:var(--gold)}
+  .b-bot p{font-family:'Fraunces',serif;font-size:1.16rem;line-height:1.34;color:var(--ink)}
+  .typing span{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--ink-soft);margin-right:4px;animation:blink 1.2s infinite}
+  .typing span:nth-child(2){animation-delay:.2s}.typing span:nth-child(3){animation-delay:.4s}
+  @keyframes blink{0%,60%,100%{opacity:.25}30%{opacity:1}}
+  .rchips{display:flex;flex-wrap:wrap;gap:8px}
+  .rchip{border:1px solid var(--line);background:#fff;color:var(--ink-soft);font-family:inherit;font-size:.78rem;padding:8px 14px;border-radius:40px;cursor:pointer;transition:all .3s}
+  .rchip:hover{border-color:var(--gold);color:var(--ink)}
+
+  /* sections */
+  section.block{padding:120px 0}
+  .lead{max-width:780px}
+  .lead h2{font-family:'Fraunces',serif;font-weight:300;font-size:clamp(2rem,4.6vw,3.3rem);line-height:1.14;margin-top:16px}
+  .lead h2 em{font-style:italic;color:var(--gold)}
+  .lead p{color:var(--ink-soft);margin-top:24px;max-width:640px}
+
+  .collection{padding-bottom:120px}
+  .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:26px;margin-top:54px}
+  .card{background:var(--paper-2);border:1px solid var(--line-2);border-radius:4px;overflow:hidden;transition:transform .4s,box-shadow .4s}
+  .card:hover{transform:translateY(-4px);box-shadow:0 26px 50px -30px rgba(13,24,40,.4)}
+  .card .img{height:190px;position:relative}
+  .card .img svg{width:100%;height:100%;display:block}
+  .card .body{padding:26px 26px 30px}
+  .card .status{font-size:.62rem;letter-spacing:.2em;text-transform:uppercase}
+  .card .status.live{color:var(--gold)}
+  .card .status.soon{color:#9aa3b1}
+  .card h3{font-family:'Fraunces',serif;font-weight:400;font-size:1.7rem;margin:12px 0 10px}
+  .card p{color:var(--ink-soft);font-size:.92rem}
+  .card .go{margin-top:20px;font-size:.78rem;letter-spacing:.06em;color:var(--ink)}
+  .card.soon h3{color:#6f7888}
+  @media(max-width:880px){.cards{grid-template-columns:1fr}}
+
+  .band{background:var(--paper-2);border-top:1px solid var(--line-2);border-bottom:1px solid var(--line-2)}
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:44px;margin-top:56px}
+  .step .num{font-family:'Fraunces',serif;font-size:1rem;color:var(--gold);border-bottom:1px solid var(--line);padding-bottom:14px;margin-bottom:18px}
+  .step h4{font-family:'Fraunces',serif;font-weight:400;font-size:1.4rem;margin-bottom:10px}
+  .step p{color:var(--ink-soft);font-size:.9rem}
+  @media(max-width:880px){.steps{grid-template-columns:1fr;gap:30px}}
+
+  footer{padding:72px 0 50px}
+  .f-top{display:flex;justify-content:space-between;flex-wrap:wrap;gap:30px}
+  .f-top .mark{font-family:'Fraunces',serif;font-size:1.4rem;letter-spacing:.4em;color:var(--ink);text-decoration:none}
+  .f-cols{display:flex;gap:64px;flex-wrap:wrap}
+  .f-col h5{font-size:.64rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:16px}
+  .f-col a{display:block;color:var(--ink-soft);text-decoration:none;font-size:.86rem;margin-bottom:10px;transition:color .3s}
+  .f-col a:hover{color:var(--ink)}
+  .f-bottom{margin-top:54px;padding-top:24px;border-top:1px solid var(--line-2);display:flex;justify-content:space-between;flex-wrap:wrap;gap:14px;color:#9aa3b1;font-size:.74rem}
+
+  @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<header id="hdr">
+  <a href="#" class="logo">
+    <svg width="32" height="32" viewBox="0 0 120 120" fill="none">
+      <g stroke="currentColor" stroke-width="3"><circle cx="60" cy="60" r="50"/><line x1="10" y1="60" x2="110" y2="60"/><ellipse cx="60" cy="60" rx="19" ry="50"/></g>
+      <line x1="60" y1="5" x2="60" y2="115" stroke="#C3A45F" stroke-width="3.4"/>
+    </svg>
+    <span>BLUE MERIDIAN</span>
+  </a>
+  <nav>
+    <a href="#collection" class="nav-link">Charter</a>
+    <a href="#how" class="nav-link">How it works</a>
+    <a href="#access" class="nav-link">Access</a>
+    <a href="#" class="nav-cta">Enquire</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="slides" id="slides">
+
+    <!-- SLIDE 1 — YACHTS -->
+    <div class="slide active">
+      <svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <defs>
+          <linearGradient id="sky1" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#cfe2ef"/><stop offset=".55" stop-color="#e9e2d4"/><stop offset="1" stop-color="#f3ecdd"/>
+          </linearGradient>
+          <linearGradient id="sea1" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#a9cbd3"/><stop offset="1" stop-color="#7fb0bb"/>
+          </linearGradient>
+        </defs>
+        <rect width="1440" height="900" fill="url(#sky1)"/>
+        <circle cx="1060" cy="250" r="120" fill="#fbf3e3" opacity=".7"/>
+        <circle cx="1060" cy="250" r="78" fill="#fdf8ee"/>
+        <path d="M0,470 C260,452 360,440 520,452 C760,470 980,438 1440,456 L1440,560 L0,560 Z" fill="#bcae8f" opacity=".35"/>
+        <rect y="556" width="1440" height="344" fill="url(#sea1)"/>
+        <g opacity=".5" stroke="#ffffff" stroke-width="2" fill="none">
+          <path d="M120,640 q60,-10 120,0 t120,0"/><path d="M900,700 q60,-10 120,0 t120,0"/>
+          <path d="M520,760 q60,-10 120,0 t120,0"/>
+        </g>
+        <!-- sailing yacht -->
+        <g transform="translate(690,360)">
+          <path d="M-8,250 L8,250 L8,40 Z" fill="#16243A" opacity=".9"/>
+          <path d="M8,40 L8,250 L150,250 Z" fill="#ffffff"/>
+          <path d="M-12,46 L-130,250 L-12,250 Z" fill="#f1f1ee"/>
+          <path d="M-150,252 L175,252 C168,300 120,322 12,322 C-70,322 -130,300 -150,252 Z" fill="#1d2c44"/>
+          <path d="M-150,252 L175,252 L168,266 L-144,266 Z" fill="#27384f"/>
+        </g>
+        <ellipse cx="700" cy="690" rx="150" ry="14" fill="#16243A" opacity=".12"/>
+      </svg>
+    </div>
+
+    <!-- SLIDE 2 — SUPERYACHTS -->
+    <div class="slide">
+      <svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <defs>
+          <linearGradient id="sky2" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#f5dfc0"/><stop offset=".5" stop-color="#f7ecd9"/><stop offset="1" stop-color="#f3ecdf"/>
+          </linearGradient>
+          <linearGradient id="sea2" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#b7ccc9"/><stop offset="1" stop-color="#8fb2b3"/>
+          </linearGradient>
+        </defs>
+        <rect width="1440" height="900" fill="url(#sky2)"/>
+        <circle cx="420" cy="280" r="150" fill="#fcefd6" opacity=".8"/>
+        <circle cx="420" cy="280" r="92" fill="#fef8ec"/>
+        <rect y="560" width="1440" height="340" fill="url(#sea2)"/>
+        <ellipse cx="420" cy="600" rx="220" ry="22" fill="#fcefd6" opacity=".4"/>
+        <!-- superyacht profile -->
+        <g transform="translate(470,392)">
+          <path d="M0,150 L760,150 C742,196 690,214 560,214 L120,214 C56,214 16,190 0,150 Z" fill="#1d2c44"/>
+          <rect x="40" y="150" width="700" height="12" fill="#2b3d57"/>
+          <path d="M70,150 L70,96 L560,96 L600,150 Z" fill="#ffffff"/>
+          <path d="M120,96 L120,58 L470,58 L500,96 Z" fill="#f4f4f1"/>
+          <path d="M170,58 L170,30 L380,30 L400,58 Z" fill="#fbfbf9"/>
+          <g fill="#9fb6c2"><rect x="96" y="112" width="34" height="16"/><rect x="150" y="112" width="34" height="16"/><rect x="204" y="112" width="34" height="16"/><rect x="258" y="112" width="34" height="16"/><rect x="312" y="112" width="34" height="16"/><rect x="366" y="112" width="34" height="16"/><rect x="420" y="112" width="34" height="16"/><rect x="474" y="112" width="34" height="16"/></g>
+          <g fill="#b9cdd6"><rect x="150" y="70" width="30" height="14"/><rect x="200" y="70" width="30" height="14"/><rect x="250" y="70" width="30" height="14"/><rect x="300" y="70" width="30" height="14"/><rect x="350" y="70" width="30" height="14"/><rect x="400" y="70" width="30" height="14"/></g>
+          <rect x="250" y="0" width="5" height="34" fill="#1d2c44"/>
+        </g>
+        <ellipse cx="760" cy="640" rx="330" ry="20" fill="#16243A" opacity=".1"/>
+      </svg>
+    </div>
+
+    <!-- SLIDE 3 — PRIVATE JETS -->
+    <div class="slide">
+      <svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <defs>
+          <linearGradient id="sky3" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#bcdcef"/><stop offset=".6" stop-color="#dceaf3"/><stop offset="1" stop-color="#eef4f6"/>
+          </linearGradient>
+        </defs>
+        <rect width="1440" height="900" fill="url(#sky3)"/>
+        <ellipse cx="300" cy="640" rx="260" ry="60" fill="#ffffff" opacity=".55"/>
+        <ellipse cx="540" cy="690" rx="200" ry="48" fill="#ffffff" opacity=".5"/>
+        <ellipse cx="1180" cy="300" rx="220" ry="52" fill="#ffffff" opacity=".5"/>
+        <ellipse cx="980" cy="360" rx="150" ry="40" fill="#ffffff" opacity=".45"/>
+        <!-- private jet ascending -->
+        <g transform="translate(560,300) rotate(-12)">
+          <path d="M-260,40 C-150,18 240,18 320,40 C240,62 -150,62 -260,40 Z" fill="#ffffff"/>
+          <path d="M320,40 C300,30 300,50 320,40 Z" fill="#16243A"/>
+          <path d="M-180,40 L-40,40 L-150,150 L-220,150 Z" fill="#cfdbe4"/>
+          <path d="M-150,40 L-30,40 L-90,-92 L-150,-92 Z" fill="#16243A"/>
+          <path d="M40,40 L150,40 L120,8 L70,8 Z" fill="#26384f"/>
+          <g fill="#9fb6c2"><circle cx="-120" cy="40" r="6"/><circle cx="-90" cy="40" r="6"/><circle cx="-60" cy="40" r="6"/><circle cx="-30" cy="40" r="6"/><circle cx="0" cy="40" r="6"/><circle cx="30" cy="40" r="6"/><circle cx="60" cy="40" r="6"/></g>
+          <ellipse cx="-30" cy="78" rx="34" ry="11" fill="#26384f"/>
+        </g>
+      </svg>
+    </div>
+
+  </div>
+
+  <div class="scrim"></div>
+  <div class="arrows"><button id="prev" aria-label="Previous">‹</button><button id="next" aria-label="Next">›</button></div>
+
+  <div class="caption" id="caption">
+    <div class="nm">M/Y Aurelia</div>
+    <div class="meta">Sailing &amp; motor yachts · Mediterranean</div>
+  </div>
+
+  <div class="hero-content">
+    <p class="eyebrow">Private charter · United Kingdom</p>
+    <h1>Tell us where you'd <em>rather</em> be.</h1>
+    <p class="sub">Yachts, superyachts and — soon — private jets, curated by a single point of contact.</p>
+
+    <div class="search">
+      <svg class="ico" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input id="brief" type="text" autocomplete="off" placeholder="A week on the Amalfi Coast in August, eight guests, with a chef…" />
+      <button id="go">Search</button>
+    </div>
+    <p class="hint">Describe the trip in your words — our concierge does the rest.</p>
+
+    <div class="thread" id="thread"></div>
+  </div>
+
+  <div class="cats" id="cats">
+    <button class="cat on" data-i="0">Yachts</button>
+    <button class="cat" data-i="1">Superyachts</button>
+    <button class="cat" data-i="2">Private Jets <span class="tag">Soon</span></button>
+  </div>
+</section>
+
+<section class="block">
+  <div class="wrap lead">
+    <p class="eyebrow">A different way to charter</p>
+    <h2>Most charter begins with a thousand listings. <em>Ours begins with a sentence.</em></h2>
+    <p>Tell our concierge what the week should feel like — where, when, who's aboard, the mood you're after. It returns a short, considered shortlist rather than a catalogue, drawn from a vetted network of fleets and central agents, with every charter arranged under recognised MYBA terms.</p>
+  </div>
+</section>
+
+<section class="collection" id="collection">
+  <div class="wrap">
+    <p class="eyebrow">What we charter</p>
+    <h2 class="serif" style="font-weight:300;font-size:clamp(2rem,4.6vw,3.3rem);margin-top:14px">The collection</h2>
+    <div class="cards">
+      <div class="card">
+        <div class="img">
+          <svg viewBox="0 0 600 300" preserveAspectRatio="xMidYMid slice"><rect width="600" height="300" fill="#dfe9ee"/><rect y="190" width="600" height="110" fill="#9cc0c8"/><circle cx="470" cy="86" r="44" fill="#f7efdf"/><g transform="translate(250,120)"><path d="M-4,90 L4,90 L4,8 Z" fill="#16243A"/><path d="M4,8 L4,90 L66,90 Z" fill="#fff"/><path d="M-6,12 L-54,90 L-6,90 Z" fill="#eee"/><path d="M-70,92 L86,92 C80,114 54,124 8,124 C-36,124 -60,112 -70,92 Z" fill="#1d2c44"/></g></svg>
+        </div>
+        <div class="body">
+          <span class="status live">● Available now</span>
+          <h3>Yachts</h3>
+          <p>Sail and motor, bareboat to crewed — across the Mediterranean, the Caribbean and beyond.</p>
+          <div class="go">Begin an enquiry →</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="img">
+          <svg viewBox="0 0 600 300" preserveAspectRatio="xMidYMid slice"><rect width="600" height="300" fill="#f3e6d2"/><rect y="195" width="600" height="105" fill="#a6c1bf"/><circle cx="150" cy="96" r="50" fill="#fcefd6"/><g transform="translate(170,150)"><path d="M0,60 L320,60 C312,80 280,90 230,90 L60,90 C26,90 8,78 0,60 Z" fill="#1d2c44"/><path d="M28,60 L28,36 L236,36 L262,60 Z" fill="#fff"/><path d="M70,36 L70,18 L188,18 L206,36 Z" fill="#f3f3f0"/><g fill="#9fb6c2"><rect x="44" y="44" width="20" height="9"/><rect x="76" y="44" width="20" height="9"/><rect x="108" y="44" width="20" height="9"/><rect x="140" y="44" width="20" height="9"/><rect x="172" y="44" width="20" height="9"/><rect x="204" y="44" width="20" height="9"/></g></g></svg>
+        </div>
+        <div class="body">
+          <span class="status live">● Available now</span>
+          <h3>Superyachts</h3>
+          <p>Fully crewed vessels and the access to reach the ones that never make a public listing.</p>
+          <div class="go">Begin an enquiry →</div>
+        </div>
+      </div>
+      <div class="card soon">
+        <div class="img">
+          <svg viewBox="0 0 600 300" preserveAspectRatio="xMidYMid slice"><rect width="600" height="300" fill="#dde9f1"/><ellipse cx="160" cy="210" rx="150" ry="36" fill="#fff" opacity=".6"/><ellipse cx="470" cy="110" rx="120" ry="30" fill="#fff" opacity=".55"/><g transform="translate(300,150) rotate(-12)"><path d="M-150,18 C-80,6 130,6 175,18 C130,30 -80,30 -150,18 Z" fill="#fff"/><path d="M-100,18 L-20,18 L-84,84 L-126,84 Z" fill="#cfdbe4"/><path d="M-86,18 L-16,18 L-52,-54 L-86,-54 Z" fill="#16243A"/><path d="M22,18 L86,18 L68,2 L40,2 Z" fill="#26384f"/></g></svg>
+        </div>
+        <div class="body">
+          <span class="status soon">Arriving soon</span>
+          <h3>Private Jets</h3>
+          <p>On-demand and managed lift, arranged with the same discretion and one point of contact.</p>
+          <div class="go">Register interest →</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="band">
+  <div class="block wrap" id="how">
+    <p class="eyebrow">How it works</p>
+    <h2 class="serif" style="font-weight:300;font-size:clamp(2rem,4.6vw,3.3rem);margin-top:14px">Three steps, one contact.</h2>
+    <div class="steps">
+      <div class="step"><div class="num">I</div><h4>Describe it</h4><p>Tell the concierge what you have in mind, in your own words. It asks only what it needs.</p></div>
+      <div class="step"><div class="num">II</div><h4>We curate</h4><p>We match your brief to live availability and confirm the finest fits with their central agents.</p></div>
+      <div class="step"><div class="num">III</div><h4>You set sail</h4><p>A specialist holds your dates, prepares the agreement, and stays with you to redelivery.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="access">
+  <div class="wrap lead">
+    <p class="eyebrow">Access &amp; discretion</p>
+    <h2>Some of the best yachts <em>never reach a listing.</em></h2>
+    <p>The most sought-after vessels and crews fill by relationship, not by search. Our network reaches them. Every charter is arranged under recognised MYBA terms, with funds held by a neutral stakeholder and your privacy treated as a condition, not a courtesy.</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="f-top">
+      <div>
+        <a href="#" class="logo" style="color:var(--ink)">
+          <svg width="30" height="30" viewBox="0 0 120 120" fill="none">
+            <g stroke="currentColor" stroke-width="3"><circle cx="60" cy="60" r="50"/><line x1="10" y1="60" x2="110" y2="60"/><ellipse cx="60" cy="60" rx="19" ry="50"/></g>
+            <line x1="60" y1="5" x2="60" y2="115" stroke="#A07C3B" stroke-width="3.4"/>
+          </svg>
+          <span>BLUE MERIDIAN</span>
+        </a>
+        <p style="color:#9aa3b1;font-size:.82rem;margin-top:14px;max-width:260px">Private charter &amp; curation for the United Kingdom.</p>
+      </div>
+      <div class="f-cols">
+        <div class="f-col"><h5>Charter</h5><a href="#collection">Yachts</a><a href="#collection">Superyachts</a><a href="#collection">Private jets</a></div>
+        <div class="f-col"><h5>House</h5><a href="#">Our approach</a><a href="#access">Discretion</a><a href="#">Enquire</a></div>
+        <div class="f-col"><h5>Contact</h5><a href="#">By appointment</a><a href="#">London &amp; Cornwall</a><a href="#">concierge@bluemeridian.ai</a></div>
+      </div>
+    </div>
+    <div class="f-bottom"><span>© 2026 Blue Meridian. Arranged under MYBA standard terms via vetted partners.</span><span>Quietly, and well.</span></div>
+  </div>
+</footer>
+
+<script>
+  // header on scroll
+  const hdr=document.getElementById('hdr');
+  addEventListener('scroll',()=>hdr.classList.toggle('scrolled',scrollY>60));
+
+  // carousel
+  const slides=[...document.querySelectorAll('.slide')];
+  const cats=[...document.querySelectorAll('.cat')];
+  const caption=document.getElementById('caption');
+  const meta=[
+    {nm:'M/Y Aurelia',meta:'Sailing &amp; motor yachts · Mediterranean'},
+    {nm:'M/Y Helios',meta:'Crewed superyachts · Worldwide'},
+    {nm:'Private aviation',meta:'On-demand &amp; managed · Arriving soon'}
+  ];
+  let i=0,timer;
+  function show(n){
+    i=(n+slides.length)%slides.length;
+    slides.forEach((s,k)=>s.classList.toggle('active',k===i));
+    cats.forEach((c,k)=>c.classList.toggle('on',k===i));
+    caption.innerHTML='<div class="nm">'+meta[i].nm+'</div><div class="meta">'+meta[i].meta+'</div>';
+  }
+  function loop(){timer=setInterval(()=>show(i+1),5200);}
+  function reset(){clearInterval(timer);loop();}
+  cats.forEach(c=>c.addEventListener('click',()=>{show(+c.dataset.i);reset();}));
+  document.getElementById('next').addEventListener('click',()=>{show(i+1);reset();});
+  document.getElementById('prev').addEventListener('click',()=>{show(i-1);reset();});
+  loop();
+
+  // concierge
+  const brief=document.getElementById('brief'),thread=document.getElementById('thread');
+  function bub(html,cls){const d=document.createElement('div');d.className=cls;d.innerHTML=html;thread.appendChild(d);return d;}
+  function run(){
+    const text=brief.value.trim()||'A week on the Amalfi Coast in August, eight guests, with a chef';
+    thread.classList.add('on');thread.innerHTML='';
+    bub(text,'b-user');
+    const t=bub('<div class="who"><i></i><span>The Concierge</span></div><p class="typing"><span></span><span></span><span></span></p>','b-bot');
+    setTimeout(()=>{
+      t.querySelector('p').classList.remove('typing');
+      t.querySelector('p').innerHTML='Wonderful — the Amalfi Coast in August suits a crewed motor yacht beautifully. Two quick questions and we\u2019ll shape a shortlist: sail or motor, and a guide budget per week?';
+      const r=document.createElement('div');r.className='rchips';r.style.marginTop='2px';
+      r.innerHTML='<button class="rchip">Motor · €100–150k</button><button class="rchip">Sail · €60–90k</button><button class="rchip">Open to advice</button>';
+      thread.appendChild(r);
+      r.querySelectorAll('.rchip').forEach(b=>b.addEventListener('click',()=>{
+        bub(b.textContent,'b-user');
+        bub('<div class="who"><i></i><span>The Concierge</span></div><p>Thank you. We\u2019re curating three yachts to your brief and a specialist will be in touch shortly.</p>','b-bot');
+      }));
+    },1500);
+  }
+  document.getElementById('go').addEventListener('click',run);
+  brief.addEventListener('keydown',e=>{if(e.key==='Enter')run();});
+</script>
+</body>
+</html>
