@@ -244,6 +244,25 @@
   .bme-done{text-align:center;padding:6px 0}
   .bme-done .chat{display:inline-flex;align-items:center;gap:8px;text-decoration:none;border:1px solid var(--gold);color:var(--ink);border-radius:40px;padding:9px 16px;margin:5px;font-size:.8rem}
   .bme-done .chat:hover{background:var(--gold);color:#fff}
+  /* Concierge layer */
+  .bmr-noteCard{max-width:780px;margin:26px 0 4px;padding:18px 24px;border-left:2px solid var(--gold);background:#FBFAF6;border-radius:0 12px 12px 0}
+  .bmr-noteCard p{font-family:'Fraunces',serif;font-style:italic;font-weight:300;font-size:1.08rem;color:var(--ink);line-height:1.65;margin:0}
+  .bmr-elev{margin:38px 0 6px;padding-top:26px;border-top:1px solid #e8e4d8}
+  .bmr-elevTitle{color:var(--gold);font-size:.72rem;letter-spacing:.24em;text-transform:uppercase;font-weight:600;margin-bottom:14px}
+  .bmr-chips{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:18px}
+  .bmr-chip{background:#FBFAF6;border:1px solid #e3dfd3;border-radius:999px;padding:9px 18px;font-size:.86rem;color:var(--ink-soft)}
+  .bmr-elevCta{background:transparent;border:1px solid var(--gold);color:var(--gold);border-radius:999px;padding:11px 24px;font-size:.8rem;font-weight:600;letter-spacing:.08em;cursor:pointer;font-family:inherit;transition:.2s}
+  .bmr-elevCta:hover{background:var(--gold);color:#fff}
+  .bmr-ideas{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:18px;margin-top:30px}
+  .bmr-idea{background:#FBFAF6;border:1px solid #e3dfd3;border-radius:14px;padding:26px;display:flex;flex-direction:column}
+  .bmr-ideaKicker{color:var(--gold);font-size:.68rem;letter-spacing:.22em;text-transform:uppercase;font-weight:600}
+  .bmr-idea h3{font-family:'Fraunces',serif;font-weight:400;font-size:1.3rem;margin:10px 0 10px;line-height:1.25}
+  .bmr-idea p{color:var(--ink-soft);font-size:.92rem;line-height:1.65;flex:1}
+  .bmr-ideaGo{margin-top:18px;align-self:flex-start;background:var(--ink);color:#fff;border:1px solid var(--ink);border-radius:999px;padding:10px 20px;font-size:.78rem;font-weight:600;letter-spacing:.07em;cursor:pointer;font-family:inherit}
+  .bmr-ideaGo:hover{background:#22324d}
+  .hero-chips{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:18px}
+  .hero-chips button{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.45);color:#fff;border-radius:999px;padding:8px 17px;font-size:.79rem;letter-spacing:.02em;cursor:pointer;font-family:inherit;backdrop-filter:blur(4px);transition:.2s}
+  .hero-chips button:hover{background:rgba(255,255,255,.3)}
   .bmck{position:fixed;left:18px;right:18px;bottom:18px;z-index:300;background:#FBFAF6;border:1px solid #e3dfd3;border-radius:14px;box-shadow:0 18px 50px rgba(22,36,58,.18);padding:20px 22px;display:none;max-width:560px;margin:0 auto}
   .bmck.on{display:block}
   .bmck p{color:#4d5a6e;font-size:.86rem;line-height:1.55;margin:0 0 14px}
@@ -385,6 +404,12 @@
       <button id="go">Search</button>
     </div>
     <p class="hint">Describe the trip in your words — our concierge does the rest.</p>
+    <div class="hero-chips">
+      <button data-q="I want to plan something special for a milestone birthday">Plan a celebration</button>
+      <button data-q="A week by sea somewhere beautiful in September, 8 of us">A week by sea</button>
+      <button data-q="A jet to the French Riviera this Friday, returning Sunday">Jet to the Riviera</button>
+      <button data-q="Surprise us — somewhere extraordinary, money well spent">Surprise us</button>
+    </div>
 
     <div class="thread" id="thread"></div>
   </div>
@@ -535,6 +560,9 @@
 
   // concierge
   const brief=document.getElementById('brief'),thread=document.getElementById('thread');
+  document.querySelectorAll('.hero-chips button').forEach(function(ch){
+    ch.addEventListener('click',function(){brief.value=ch.dataset.q;runSearch();});
+  });
   document.querySelectorAll('.card[data-brief]').forEach(function(c){
     c.addEventListener('click',function(){
       brief.value=c.dataset.brief;
@@ -580,6 +608,22 @@
     const jet='<g transform="translate(238,108)"><path d="M0,36 C26,26 64,20 150,20 L236,22 C268,23 290,30 294,38 C290,46 264,52 224,52 L56,50 C24,48 6,43 0,36 Z" fill="#1d2c44"/><path d="M150,20 L196,-12 L216,-12 L186,21 Z" fill="#16243A"/><path d="M120,50 L96,76 L116,76 L150,51 Z" fill="#16243A"/><path d="M252,24 L284,2 L296,2 L278,26 Z" fill="#16243A"/><g fill="#cfe2ef"><circle cx="96" cy="33" r="4"/><circle cx="116" cy="33" r="4"/><circle cx="136" cy="33" r="4"/><circle cx="156" cy="33" r="4"/><circle cx="176" cy="33" r="4"/><circle cx="196" cy="34" r="4"/></g><path d="M256,30 C272,30 282,33 284,38 C282,43 272,45 258,45 Z" fill="#fbfaf6"/></g>';
     return '<svg viewBox="0 0 600 300" preserveAspectRatio="xMidYMid slice">'+defs+'<rect width="600" height="300" fill="url(#'+gid+')"/>'+sun+clouds+trail+jet+'</svg>';
   }
+  function noteHtml(d){
+    if(!d||!d.message)return '';
+    return '<div class="bmr-noteCard"><p>'+esc(d.message)+'</p></div>';
+  }
+  function elevHtml(d){
+    if(!d||!d.elevations||!d.elevations.length)return '';
+    var chips=d.elevations.map(e=>'<span class="bmr-chip">'+esc(e)+'</span>').join('');
+    return '<div class="bmr-elev"><p class="bmr-elevTitle">To make it special</p><div class="bmr-chips">'+chips+'</div><button class="bmr-elevCta" id="bmrElevCta">Arrange this with the concierge</button></div>';
+  }
+  function wireExtras(q,d){
+    var b=view.querySelector('#bmrElevCta');
+    if(b)b.addEventListener('click',function(){openEnquiry('Your trip, elevated','experience',q+(d&&d.elevations&&d.elevations.length?(' — with: '+d.elevations.join('; ')):''));});
+    view.querySelectorAll('.bmr-ideaGo').forEach(function(g){
+      if(g.dataset.brief)g.addEventListener('click',function(){brief.value=g.dataset.brief;view.querySelector('#bmrInput').value=g.dataset.brief;runSearch();});
+    });
+  }
   const CONC='<div class="bmr-concierge"><p style="color:var(--ink-soft);margin-bottom:14px">Seen something you like? A Blue Meridian specialist will personally shape your shortlist and confirm availability.</p><a class="chat" href="https://wa.me/PLACEHOLDER" target="_blank" rel="noopener">WhatsApp the concierge</a><a class="chat" href="https://t.me/PLACEHOLDER" target="_blank" rel="noopener">Message on Telegram</a></div>';
   let view;
   function ensureView(){
@@ -592,8 +636,10 @@
     view.querySelector('#bmrGo').addEventListener('click',()=>{brief.value=bi.value;runSearch();});
     bi.addEventListener('keydown',e=>{if(e.key==='Enter'){brief.value=bi.value;runSearch();}});
   }
-  function openView(q){ensureView();view.querySelector('#bmrInput').value=q;view.classList.add('on');view.scrollTop=0;view.querySelector('#bmrWrap').innerHTML='<div class="bmr-loading">Searching the fleet…</div>';}
+  function openView(q){ensureView();view.querySelector('#bmrInput').value=q;view.classList.add('on');view.scrollTop=0;view.querySelector('#bmrWrap').innerHTML='<div class="bmr-loading">Consulting your concierge…</div>';}
   function render(q,data){
+    if(data&&data.intent==='inspire')return renderIdeas(q,data);
+    if(data&&data.intent==='experience')return renderExperience(q,data);
     if(data&&data.service==='jet')return renderJets(q,data);
     const wrap=view.querySelector('#bmrWrap');
     if(!data||!data.yachts||!data.yachts.length){
@@ -613,10 +659,13 @@
         +'<button class="bmr-cta" data-yacht="'+esc(y.name)+'" data-tier="'+esc(y.tier||'')+'">'+(req?'Request':'Enquire')+'</button></div></div></div>';
     }).join('');
     wrap.innerHTML='<div class="bmr-brief"><p class="eyebrow">Curated for your brief</p><p class="q">'+esc(q)+'</p></div>'
+      +noteHtml(data)
       +'<div class="bmr-meta"><div class="bmr-count"><b>'+data.yachts.length+' yachts</b> matched your brief</div><div class="bmr-src"><span class="dot"></span>Live via the charter network</div></div>'
       +'<div class="bmr-grid">'+cards+'</div>'
+      +elevHtml(data)
       +'<p class="bmr-note">Sample results shown while we connect the live charter feeds.</p>'+CONC;
     wrap.querySelectorAll('.bmr-cta').forEach(b=>b.addEventListener('click',()=>openEnquiry(b.dataset.yacht,b.dataset.tier,q)));
+    wireExtras(q,data);
   }
   function renderJets(q,data){
     const wrap=view.querySelector('#bmrWrap');
@@ -640,10 +689,38 @@
         +'<button class="bmr-cta" data-jet="'+esc(j.name)+'" data-route="'+esc(j.route?(j.route.from_code+' to '+j.route.to_code):'')+'">Request quote</button></div></div></div>';
     }).join('');
     wrap.innerHTML='<div class="bmr-brief"><p class="eyebrow">Curated for your brief</p><p class="q">'+esc(q)+'</p>'+routeLine+'</div>'
+      +noteHtml(data)
       +'<div class="bmr-meta"><div class="bmr-count"><b>'+data.jets.length+' aircraft</b> matched your brief</div><div class="bmr-src"><span class="dot"></span>Live via the aviation network</div></div>'
       +'<div class="bmr-grid">'+cards+'</div>'
+      +elevHtml(data)
       +'<p class="bmr-note">Sample aircraft and guide pricing shown while we connect the live aviation feeds. All charters operated by licensed carriers; you contract directly with the operator.</p>'+CONC;
     wrap.querySelectorAll('.bmr-cta').forEach(b=>b.addEventListener('click',()=>openEnquiry(b.dataset.jet,'jet',q,b.dataset.route)));
+    wireExtras(q,data);
+  }
+  function renderIdeas(q,data){
+    const wrap=view.querySelector('#bmrWrap');
+    const ideas=(data.ideas||[]).map(function(i){
+      return '<div class="bmr-idea"><p class="bmr-ideaKicker">An idea</p><h3>'+esc(i.title)+'</h3><p>'+esc(i.blurb)+'</p>'
+        +'<button class="bmr-ideaGo" data-brief="'+esc(i.brief)+'">Explore this &rarr;</button></div>';
+    }).join('');
+    wrap.innerHTML='<div class="bmr-brief"><p class="eyebrow">Let\'s plan it</p><p class="q">'+esc(q)+'</p></div>'
+      +noteHtml(data)
+      +'<div class="bmr-ideas">'+ideas+'</div>'
+      +elevHtml(data)
+      +CONC;
+    wireExtras(q,data);
+  }
+  function renderExperience(q,data){
+    const wrap=view.querySelector('#bmrWrap');
+    wrap.innerHTML='<div class="bmr-brief"><p class="eyebrow">Beyond the fleet</p><p class="q">'+esc(q)+'</p></div>'
+      +noteHtml(data)
+      +'<div class="bmr-idea" style="max-width:560px;margin-top:30px"><p class="bmr-ideaKicker">Bespoke</p><h3>Arranged personally, end to end</h3><p>Safaris, villas, courts, tables, tickets — if it can be done well, our partners can do it. Leave your details and a specialist will take it from here.</p>'
+      +'<button class="bmr-ideaGo" id="bmrExpCta">Start the conversation &rarr;</button></div>'
+      +elevHtml(data)
+      +CONC;
+    var b=view.querySelector('#bmrExpCta');
+    if(b)b.addEventListener('click',function(){openEnquiry('Bespoke experience','experience',q);});
+    wireExtras(q,data);
   }
   async function runSearch(){
     const q=brief.value.trim();if(!q){brief.focus();return;}
@@ -670,10 +747,11 @@
     ctx={yacht:yacht||'',tier:tier||'',brief:briefText||'',route:route||''};
     const req=(tier==='superyacht');
     const jet=(tier==='jet');
+    const exp=(tier==='experience');
     const c=modal.querySelector('#bmeContent');
-    c.innerHTML='<p class="bme-eyebrow">'+(jet?'Request quote':(req?'Request availability':'Enquire'))+'</p>'
+    c.innerHTML='<p class="bme-eyebrow">'+(exp?'Plan it with us':(jet?'Request quote':(req?'Request availability':'Enquire')))+'</p>'
       +'<h3>'+esc(yacht)+'</h3>'
-      +'<p class="lead">'+(jet?'Share your details and our aviation desk will confirm availability and firm pricing with the operator — usually within the hour.':'Share your details and our concierge will confirm availability and shape your shortlist — usually within a few hours.')+'</p>'
+      +'<p class="lead">'+(exp?'Share your details and our concierge will design and arrange it end to end — and come back to you with a first sketch, usually within a few hours.':(jet?'Share your details and our aviation desk will confirm availability and firm pricing with the operator — usually within the hour.':'Share your details and our concierge will confirm availability and shape your shortlist — usually within a few hours.'))+'</p>'
       +'<div class="bme-row"><div class="bme-field"><label>First name</label><input id="bmeFirst" type="text"/></div><div class="bme-field"><label>Last name</label><input id="bmeLast" type="text"/></div></div>'
       +'<div class="bme-field"><label>Email</label><input id="bmeEmail" type="email" placeholder="you@example.com"/></div>'
       +'<div class="bme-field"><label>Phone (optional)</label><input id="bmePhone" type="tel"/></div>'
