@@ -182,6 +182,48 @@
   .f-bottom{margin-top:54px;padding-top:24px;border-top:1px solid var(--line-2);display:flex;justify-content:space-between;flex-wrap:wrap;gap:14px;color:#9aa3b1;font-size:.74rem}
 
   @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+  /* ===== AI search results overlay ===== */
+  .bmr-view{position:fixed;inset:0;z-index:200;background:var(--paper);overflow-y:auto;display:none}
+  .bmr-view.on{display:block}
+  .bmr-bar{position:sticky;top:0;background:var(--paper-2);border-bottom:1px solid var(--line-2);display:flex;align-items:center;gap:16px;padding:14px 24px;z-index:5}
+  .bmr-logo{font-family:'Fraunces',serif;font-size:1rem;letter-spacing:.2em;color:var(--ink);flex:none;text-decoration:none}
+  .bmr-search{flex:1;display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--line);border-radius:40px;padding:9px 9px 9px 16px;max-width:760px}
+  .bmr-search input{flex:1;border:none;background:transparent;font-family:inherit;font-size:.92rem;color:var(--ink)}
+  .bmr-search input:focus{outline:none}
+  .bmr-search button{flex:none;background:var(--ink);color:#fff;border:none;border-radius:30px;padding:8px 18px;font-family:inherit;font-weight:600;font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;cursor:pointer}
+  .bmr-close{flex:none;background:none;border:none;color:var(--ink-soft);font-size:1.6rem;cursor:pointer;line-height:1;padding:0 4px}
+  .bmr-wrap{max-width:1240px;margin:0 auto;padding:22px 24px 80px}
+  .bmr-brief{padding:16px 0 4px}
+  .bmr-brief .q{font-family:'Fraunces',serif;font-weight:300;font-size:clamp(1.3rem,2.6vw,1.8rem);line-height:1.2;font-style:italic}
+  .bmr-meta{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:10px;margin:22px 0 18px;border-top:1px solid var(--line-2);padding-top:18px}
+  .bmr-count{font-size:.92rem;color:var(--ink-soft)}
+  .bmr-count b{font-family:'Fraunces',serif;color:var(--ink);font-weight:400;font-size:1.1rem}
+  .bmr-src{font-size:.72rem;color:var(--gold);display:flex;align-items:center;gap:7px}
+  .bmr-src .dot{width:6px;height:6px;border-radius:50%;background:#3a9d6a;box-shadow:0 0 8px #3a9d6a}
+  .bmr-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+  @media(max-width:980px){.bmr-grid{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:600px){.bmr-grid{grid-template-columns:1fr}}
+  .bmr-card{background:#fff;border:1px solid var(--line-2);border-radius:6px;overflow:hidden;transition:transform .35s,box-shadow .35s}
+  .bmr-card:hover{transform:translateY(-4px);box-shadow:0 24px 46px -28px rgba(22,36,58,.42)}
+  .bmr-img{position:relative;height:180px;overflow:hidden}
+  .bmr-img svg{width:100%;height:100%;display:block}
+  .bmr-badge{position:absolute;top:12px;left:12px;background:rgba(251,250,246,.92);border-radius:30px;padding:5px 12px;font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;font-weight:500}
+  .bmr-badge.avail{color:#2f7d54}.bmr-badge.req{color:var(--gold)}
+  .bmr-type{position:absolute;top:12px;right:12px;background:rgba(22,36,58,.78);color:#fff;border-radius:30px;padding:5px 11px;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase}
+  .bmr-body{padding:16px 16px 18px}
+  .bmr-loc{font-size:.64rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:6px}
+  .bmr-card h3{font-family:'Fraunces',serif;font-weight:400;font-size:1.3rem;line-height:1.1;margin-bottom:9px}
+  .bmr-specs{font-size:.8rem;color:var(--ink-soft);margin-bottom:13px}
+  .bmr-foot{display:flex;align-items:flex-end;justify-content:space-between;border-top:1px solid var(--line-2);padding-top:12px}
+  .bmr-price{font-size:.8rem;color:var(--ink-soft)}.bmr-price b{font-family:'Fraunces',serif;color:var(--ink);font-weight:500;font-size:1.08rem}
+  .bmr-cta{font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink);border:1px solid var(--line);border-radius:30px;padding:8px 14px;cursor:pointer;background:#fff;font-family:inherit;transition:all .3s}
+  .bmr-cta:hover{background:var(--gold);border-color:var(--gold);color:#fff}
+  .bmr-note{text-align:center;color:var(--ink-soft);font-size:.8rem;padding:26px 0 0}
+  .bmr-concierge{text-align:center;padding:40px 0 0}
+  .bmr-concierge .chat{display:inline-flex;align-items:center;gap:8px;text-decoration:none;border:1px solid var(--gold);color:var(--ink);border-radius:40px;padding:9px 16px;margin:5px;font-size:.8rem}
+  .bmr-concierge .chat:hover{background:var(--gold);color:#fff}
+  .bmr-loading{text-align:center;padding:90px 0;color:var(--ink-soft);font-family:'Fraunces',serif;font-size:1.3rem;font-style:italic}
 </style>
 </head>
 <body>
@@ -464,8 +506,64 @@
       thread.appendChild(r);
     },1400);
   }
-  document.getElementById('go').addEventListener('click',run);
-  brief.addEventListener('keydown',e=>{if(e.key==='Enter')run();});
+  // ===== AI search — calls the live /api/search and renders results =====
+  const palettes=[['#cfe2ef','#eadfca','#8fb5bd'],['#d4e6ef','#f0e6d4','#7fb0bb'],['#f3e3c9','#f7ecd9','#a6c1bf'],['#cddff0','#e9e0cf','#86adb6'],['#e7dcc6','#f2ead9','#8bb2b3'],['#d0e3ec','#eee2cd','#93b9bf']];
+  function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+  function vessel(kind,idx){
+    const p=palettes[idx%palettes.length],gid='bmg'+idx;
+    const defs='<defs><linearGradient id="'+gid+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+p[0]+'"/><stop offset="1" stop-color="'+p[1]+'"/></linearGradient></defs>';
+    let boat,sun='<circle cx="470" cy="80" r="40" fill="#ffffff" opacity=".5"/>';
+    if(kind==='sail'){sun='<circle cx="120" cy="78" r="38" fill="#ffffff" opacity=".5"/>';boat='<g transform="translate(300,96)"><path d="M-4,104 L4,104 L4,6 Z" fill="#16243A"/><path d="M4,6 L4,104 L78,104 Z" fill="#fff"/><path d="M-6,12 L-66,104 L-6,104 Z" fill="#eee"/><path d="M-86,106 L96,106 C88,128 58,138 8,138 C-40,138 -66,126 -86,106 Z" fill="#1d2c44"/></g>';}
+    else if(kind==='super'){boat='<g transform="translate(90,150)"><path d="M0,70 L420,70 C408,96 360,108 290,108 L70,108 C30,108 10,92 0,70 Z" fill="#1d2c44"/><path d="M30,70 L30,42 L320,42 L350,70 Z" fill="#fff"/><path d="M86,42 L86,20 L250,20 L272,42 Z" fill="#f3f3f0"/><g fill="#9fb6c2"><rect x="48" y="50" width="18" height="8"/><rect x="78" y="50" width="18" height="8"/><rect x="108" y="50" width="18" height="8"/><rect x="138" y="50" width="18" height="8"/><rect x="168" y="50" width="18" height="8"/><rect x="198" y="50" width="18" height="8"/></g></g>';}
+    else{boat='<g transform="translate(150,150)"><path d="M0,64 L320,64 C312,86 280,96 230,96 L60,96 C26,96 8,84 0,64 Z" fill="#1d2c44"/><path d="M30,64 L30,38 L240,38 L268,64 Z" fill="#fff"/><path d="M74,38 L74,18 L196,18 L214,38 Z" fill="#f1f1ee"/><g fill="#9fb6c2"><rect x="46" y="46" width="20" height="9"/><rect x="78" y="46" width="20" height="9"/><rect x="110" y="46" width="20" height="9"/><rect x="142" y="46" width="20" height="9"/><rect x="174" y="46" width="20" height="9"/></g></g>';}
+    return '<svg viewBox="0 0 600 300" preserveAspectRatio="xMidYMid slice">'+defs+'<rect width="600" height="300" fill="url(#'+gid+')"/>'+sun+'<rect y="200" width="600" height="100" fill="'+p[2]+'"/>'+boat+'</svg>';
+  }
+  const CONC='<div class="bmr-concierge"><p style="color:var(--ink-soft);margin-bottom:14px">Seen something you like? A Blue Meridian specialist will personally shape your shortlist and confirm availability.</p><a class="chat" href="https://wa.me/PLACEHOLDER" target="_blank" rel="noopener">WhatsApp the concierge</a><a class="chat" href="https://t.me/PLACEHOLDER" target="_blank" rel="noopener">Message on Telegram</a></div>';
+  let view;
+  function ensureView(){
+    if(view)return;
+    view=document.createElement('div');view.className='bmr-view';view.id='bmrView';
+    view.innerHTML='<div class="bmr-bar"><a class="bmr-logo" href="/">BLUE MERIDIAN</a><div class="bmr-search"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#A07C3B" stroke-width="1.7"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input id="bmrInput" type="text" autocomplete="off"/><button id="bmrGo">Search</button></div><button class="bmr-close" id="bmrClose" aria-label="Close">&times;</button></div><div class="bmr-wrap" id="bmrWrap"></div>';
+    document.body.appendChild(view);
+    view.querySelector('#bmrClose').addEventListener('click',()=>view.classList.remove('on'));
+    const bi=view.querySelector('#bmrInput');
+    view.querySelector('#bmrGo').addEventListener('click',()=>{brief.value=bi.value;runSearch();});
+    bi.addEventListener('keydown',e=>{if(e.key==='Enter'){brief.value=bi.value;runSearch();}});
+  }
+  function openView(q){ensureView();view.querySelector('#bmrInput').value=q;view.classList.add('on');view.scrollTop=0;view.querySelector('#bmrWrap').innerHTML='<div class="bmr-loading">Searching the fleet…</div>';}
+  function render(q,data){
+    const wrap=view.querySelector('#bmrWrap');
+    if(!data||!data.yachts||!data.yachts.length){
+      wrap.innerHTML='<div class="bmr-brief"><p class="eyebrow">Your brief, noted</p><p class="q">'+esc(q)+'</p></div><p class="bmr-note" style="padding-top:50px">Our concierge will personally shape a shortlist for this brief.</p>'+CONC;
+      return;
+    }
+    const cards=data.yachts.map((y,idx)=>{
+      const kind=/sail/i.test(y.type||'')?'sail':(y.tier==='superyacht'?'super':'motor');
+      const req=y.tier==='superyacht'||/request/i.test(y.availability||'');
+      const price=String(y.price||'').replace('EUR ','€');
+      return '<div class="bmr-card"><div class="bmr-img">'+vessel(kind,idx)
+        +'<span class="bmr-badge '+(req?'req':'avail')+'">'+esc(y.availability)+'</span>'
+        +'<span class="bmr-type">'+esc(y.type)+'</span></div>'
+        +'<div class="bmr-body"><div class="bmr-loc">'+esc(y.location)+'</div><h3>'+esc(y.name)+'</h3>'
+        +'<div class="bmr-specs">'+esc(y.guests+' guests · '+y.cabins+' cabins · '+y.crew+' crew')+'</div>'
+        +'<div class="bmr-foot"><div class="bmr-price">from <b>'+esc(price)+'</b> / week</div>'
+        +'<button class="bmr-cta">'+(req?'Request':'Enquire')+'</button></div></div></div>';
+    }).join('');
+    wrap.innerHTML='<div class="bmr-brief"><p class="eyebrow">Curated for your brief</p><p class="q">'+esc(q)+'</p></div>'
+      +'<div class="bmr-meta"><div class="bmr-count"><b>'+data.yachts.length+' yachts</b> matched your brief</div><div class="bmr-src"><span class="dot"></span>Live via the charter network</div></div>'
+      +'<div class="bmr-grid">'+cards+'</div>'
+      +'<p class="bmr-note">Sample results shown while we connect the live charter feeds.</p>'+CONC;
+    wrap.querySelectorAll('.bmr-cta').forEach(b=>b.addEventListener('click',()=>{wrap.querySelector('.bmr-concierge').scrollIntoView({behavior:'smooth'});}));
+  }
+  async function runSearch(){
+    const q=brief.value.trim();if(!q){brief.focus();return;}
+    openView(q);
+    let data=null;
+    try{const res=await fetch('/api/search',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({brief:q})});if(res.ok)data=await res.json();}catch(e){}
+    render(q,data);
+  }
+  document.getElementById('go').addEventListener('click',runSearch);
+  brief.addEventListener('keydown',e=>{if(e.key==='Enter')runSearch();});
 </script>
 </body>
 </html>
