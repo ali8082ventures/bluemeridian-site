@@ -224,6 +224,26 @@
   .bmr-concierge .chat{display:inline-flex;align-items:center;gap:8px;text-decoration:none;border:1px solid var(--gold);color:var(--ink);border-radius:40px;padding:9px 16px;margin:5px;font-size:.8rem}
   .bmr-concierge .chat:hover{background:var(--gold);color:#fff}
   .bmr-loading{text-align:center;padding:90px 0;color:var(--ink-soft);font-family:'Fraunces',serif;font-size:1.3rem;font-style:italic}
+
+  /* ===== Enquiry modal ===== */
+  .bme-modal{position:fixed;inset:0;z-index:300;background:rgba(13,24,40,.55);display:none;align-items:center;justify-content:center;padding:20px}
+  .bme-modal.on{display:flex}
+  .bme-card{background:var(--paper-2);border-radius:10px;max-width:440px;width:100%;padding:32px 30px 30px;position:relative;box-shadow:0 30px 80px -20px rgba(13,24,40,.5)}
+  .bme-close{position:absolute;top:12px;right:16px;background:none;border:none;font-size:1.5rem;color:var(--ink-soft);cursor:pointer;line-height:1}
+  .bme-eyebrow{font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:500}
+  .bme-card h3{font-family:'Fraunces',serif;font-weight:400;font-size:1.5rem;line-height:1.15;margin:6px 0}
+  .bme-card p.lead{color:var(--ink-soft);font-size:.88rem;margin:6px 0 18px}
+  .bme-row{display:flex;gap:10px}
+  .bme-field{margin-bottom:12px;flex:1}
+  .bme-field label{display:block;font-size:.7rem;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:5px}
+  .bme-field input{width:100%;border:1px solid var(--line);border-radius:8px;padding:11px 13px;font-family:inherit;font-size:.92rem;color:var(--ink);background:#fff}
+  .bme-field input:focus{outline:none;border-color:var(--gold)}
+  .bme-submit{width:100%;background:var(--ink);color:#fff;border:none;border-radius:40px;padding:13px;font-family:inherit;font-weight:600;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;margin-top:6px}
+  .bme-submit:disabled{opacity:.6;cursor:default}
+  .bme-err{color:#b3402f;font-size:.82rem;margin-top:10px;display:none}
+  .bme-done{text-align:center;padding:6px 0}
+  .bme-done .chat{display:inline-flex;align-items:center;gap:8px;text-decoration:none;border:1px solid var(--gold);color:var(--ink);border-radius:40px;padding:9px 16px;margin:5px;font-size:.8rem}
+  .bme-done .chat:hover{background:var(--gold);color:#fff}
 </style>
 </head>
 <body>
@@ -547,13 +567,13 @@
         +'<div class="bmr-body"><div class="bmr-loc">'+esc(y.location)+'</div><h3>'+esc(y.name)+'</h3>'
         +'<div class="bmr-specs">'+esc(y.guests+' guests · '+y.cabins+' cabins · '+y.crew+' crew')+'</div>'
         +'<div class="bmr-foot"><div class="bmr-price">from <b>'+esc(price)+'</b> / week</div>'
-        +'<button class="bmr-cta">'+(req?'Request':'Enquire')+'</button></div></div></div>';
+        +'<button class="bmr-cta" data-yacht="'+esc(y.name)+'" data-tier="'+esc(y.tier||'')+'">'+(req?'Request':'Enquire')+'</button></div></div></div>';
     }).join('');
     wrap.innerHTML='<div class="bmr-brief"><p class="eyebrow">Curated for your brief</p><p class="q">'+esc(q)+'</p></div>'
       +'<div class="bmr-meta"><div class="bmr-count"><b>'+data.yachts.length+' yachts</b> matched your brief</div><div class="bmr-src"><span class="dot"></span>Live via the charter network</div></div>'
       +'<div class="bmr-grid">'+cards+'</div>'
       +'<p class="bmr-note">Sample results shown while we connect the live charter feeds.</p>'+CONC;
-    wrap.querySelectorAll('.bmr-cta').forEach(b=>b.addEventListener('click',()=>{wrap.querySelector('.bmr-concierge').scrollIntoView({behavior:'smooth'});}));
+    wrap.querySelectorAll('.bmr-cta').forEach(b=>b.addEventListener('click',()=>openEnquiry(b.dataset.yacht,b.dataset.tier,q)));
   }
   async function runSearch(){
     const q=brief.value.trim();if(!q){brief.focus();return;}
@@ -564,6 +584,56 @@
   }
   document.getElementById('go').addEventListener('click',runSearch);
   brief.addEventListener('keydown',e=>{if(e.key==='Enter')runSearch();});
+
+  // ===== Enquiry capture — posts to /api/enquiry (creates HubSpot contact + deal) =====
+  let modal,ctx={};
+  function ensureModal(){
+    if(modal)return;
+    modal=document.createElement('div');modal.className='bme-modal';modal.id='bmeModal';
+    modal.innerHTML='<div class="bme-card"><button class="bme-close" id="bmeClose" aria-label="Close">&times;</button><div id="bmeContent"></div></div>';
+    document.body.appendChild(modal);
+    modal.querySelector('#bmeClose').addEventListener('click',()=>modal.classList.remove('on'));
+    modal.addEventListener('click',e=>{if(e.target===modal)modal.classList.remove('on');});
+  }
+  function openEnquiry(yacht,tier,briefText){
+    ensureModal();
+    ctx={yacht:yacht||'',tier:tier||'',brief:briefText||''};
+    const req=(tier==='superyacht');
+    const c=modal.querySelector('#bmeContent');
+    c.innerHTML='<p class="bme-eyebrow">'+(req?'Request availability':'Enquire')+'</p>'
+      +'<h3>'+esc(yacht)+'</h3>'
+      +'<p class="lead">Share your details and our concierge will confirm availability and shape your shortlist — usually within a few hours.</p>'
+      +'<div class="bme-row"><div class="bme-field"><label>First name</label><input id="bmeFirst" type="text"/></div><div class="bme-field"><label>Last name</label><input id="bmeLast" type="text"/></div></div>'
+      +'<div class="bme-field"><label>Email</label><input id="bmeEmail" type="email" placeholder="you@example.com"/></div>'
+      +'<div class="bme-field"><label>Phone (optional)</label><input id="bmePhone" type="tel"/></div>'
+      +'<button class="bme-submit" id="bmeSubmit">Send enquiry</button>'
+      +'<p class="bme-err" id="bmeErr">Please enter your first name and a valid email.</p>';
+    modal.classList.add('on');
+    c.querySelector('#bmeFirst').focus();
+    c.querySelector('#bmeSubmit').addEventListener('click',submitEnquiry);
+    c.querySelectorAll('input').forEach(el=>el.addEventListener('keydown',e=>{if(e.key==='Enter')submitEnquiry();}));
+  }
+  async function submitEnquiry(){
+    const c=modal.querySelector('#bmeContent');
+    const first=c.querySelector('#bmeFirst').value.trim();
+    const last=c.querySelector('#bmeLast').value.trim();
+    const email=c.querySelector('#bmeEmail').value.trim();
+    const phone=c.querySelector('#bmePhone').value.trim();
+    const err=c.querySelector('#bmeErr');
+    if(!first||!/.+@.+\..+/.test(email)){err.style.display='block';return;}
+    const btn=c.querySelector('#bmeSubmit');btn.disabled=true;btn.textContent='Sending…';
+    let ok=false;
+    try{
+      const res=await fetch('/api/enquiry',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+        email:email,firstname:first,lastname:last,phone:phone,
+        yachts:ctx.yacht,tier:ctx.tier,tier_interest:ctx.tier,brief:ctx.brief,source:'ai_concierge'
+      })});
+      ok=res.ok;
+    }catch(e){}
+    c.innerHTML='<div class="bme-done"><p class="bme-eyebrow">Enquiry received</p><h3>Thank you'+(first?', '+esc(first):'')+'.</h3>'
+      +'<p class="lead">A Blue Meridian specialist will be in touch shortly about <b>'+esc(ctx.yacht)+'</b>. Prefer to talk now?</p>'
+      +'<a class="chat" href="https://wa.me/PLACEHOLDER" target="_blank" rel="noopener">WhatsApp</a><a class="chat" href="https://t.me/PLACEHOLDER" target="_blank" rel="noopener">Telegram</a></div>';
+  }
 </script>
 </body>
 </html>
