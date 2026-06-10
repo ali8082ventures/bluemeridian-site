@@ -369,7 +369,7 @@
   <div class="hero-content">
     <p class="eyebrow">Private charter · United Kingdom</p>
     <h1>Tell us where you'd <em>rather</em> be.</h1>
-    <p class="sub">Yachts, superyachts and — soon — private jets, curated by a single point of contact.</p>
+    <p class="sub">Yachts, superyachts and private jets, curated by a single point of contact.</p>
 
     <div class="search">
       <svg class="ico" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
@@ -384,7 +384,7 @@
   <div class="cats" id="cats">
     <button class="cat on" data-i="0">Yachts</button>
     <button class="cat" data-i="1">Superyachts</button>
-    <button class="cat" data-i="2">Private Jets <span class="tag">Soon</span></button>
+    <button class="cat" data-i="2">Private Jets <span class="tag">New</span></button>
   </div>
 </section>
 
@@ -493,7 +493,7 @@
   const meta=[
     {nm:'M/Y Aurelia',meta:'Sailing &amp; motor yachts · Mediterranean'},
     {nm:'M/Y Helios',meta:'Crewed superyachts · Worldwide'},
-    {nm:'Private aviation',meta:'On-demand &amp; managed · Arriving soon'}
+    {nm:'Private aviation',meta:'Light jets to ultra-long-range · On demand'}
   ];
   let i=0,timer;
   function show(n){
@@ -511,6 +511,8 @@
 
   // concierge
   const brief=document.getElementById('brief'),thread=document.getElementById('thread');
+  const HINTS=['A week on the Amalfi Coast in August, eight guests, with a chef…','A jet from Farnborough to Nice tomorrow morning, six passengers…','Sailing the Cyclades in July, two cabins, easy pace…','London to Mykonos on Friday, returning Monday, four of us…'];
+  let hi=0;setInterval(()=>{if(document.activeElement!==brief&&!brief.value){hi=(hi+1)%HINTS.length;brief.placeholder=HINTS[hi];}},4800);
   function bub(html,cls){const d=document.createElement('div');d.className=cls;d.innerHTML=html;thread.appendChild(d);return d;}
   function run(){
     const text=brief.value.trim();
@@ -538,6 +540,15 @@
     else{boat='<g transform="translate(150,150)"><path d="M0,64 L320,64 C312,86 280,96 230,96 L60,96 C26,96 8,84 0,64 Z" fill="#1d2c44"/><path d="M30,64 L30,38 L240,38 L268,64 Z" fill="#fff"/><path d="M74,38 L74,18 L196,18 L214,38 Z" fill="#f1f1ee"/><g fill="#9fb6c2"><rect x="46" y="46" width="20" height="9"/><rect x="78" y="46" width="20" height="9"/><rect x="110" y="46" width="20" height="9"/><rect x="142" y="46" width="20" height="9"/><rect x="174" y="46" width="20" height="9"/></g></g>';}
     return '<svg viewBox="0 0 600 300" preserveAspectRatio="xMidYMid slice">'+defs+'<rect width="600" height="300" fill="url(#'+gid+')"/>'+sun+'<rect y="200" width="600" height="100" fill="'+p[2]+'"/>'+boat+'</svg>';
   }
+  function plane(idx){
+    const p=palettes[idx%palettes.length],gid='bmj'+idx;
+    const defs='<defs><linearGradient id="'+gid+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+p[0]+'"/><stop offset="1" stop-color="'+p[1]+'"/></linearGradient></defs>';
+    const sun='<circle cx="478" cy="74" r="38" fill="#ffffff" opacity=".5"/>';
+    const clouds='<g fill="#ffffff" opacity=".55"><ellipse cx="120" cy="206" rx="60" ry="10"/><ellipse cx="420" cy="232" rx="84" ry="12"/><ellipse cx="250" cy="252" rx="48" ry="8"/></g>';
+    const trail='<path d="M40,158 C140,150 200,146 252,144" stroke="#ffffff" stroke-width="5" fill="none" opacity=".65" stroke-linecap="round"/>';
+    const jet='<g transform="translate(238,108)"><path d="M0,36 C26,26 64,20 150,20 L236,22 C268,23 290,30 294,38 C290,46 264,52 224,52 L56,50 C24,48 6,43 0,36 Z" fill="#1d2c44"/><path d="M150,20 L196,-12 L216,-12 L186,21 Z" fill="#16243A"/><path d="M120,50 L96,76 L116,76 L150,51 Z" fill="#16243A"/><path d="M252,24 L284,2 L296,2 L278,26 Z" fill="#16243A"/><g fill="#cfe2ef"><circle cx="96" cy="33" r="4"/><circle cx="116" cy="33" r="4"/><circle cx="136" cy="33" r="4"/><circle cx="156" cy="33" r="4"/><circle cx="176" cy="33" r="4"/><circle cx="196" cy="34" r="4"/></g><path d="M256,30 C272,30 282,33 284,38 C282,43 272,45 258,45 Z" fill="#fbfaf6"/></g>';
+    return '<svg viewBox="0 0 600 300" preserveAspectRatio="xMidYMid slice">'+defs+'<rect width="600" height="300" fill="url(#'+gid+')"/>'+sun+clouds+trail+jet+'</svg>';
+  }
   const CONC='<div class="bmr-concierge"><p style="color:var(--ink-soft);margin-bottom:14px">Seen something you like? A Blue Meridian specialist will personally shape your shortlist and confirm availability.</p><a class="chat" href="https://wa.me/PLACEHOLDER" target="_blank" rel="noopener">WhatsApp the concierge</a><a class="chat" href="https://t.me/PLACEHOLDER" target="_blank" rel="noopener">Message on Telegram</a></div>';
   let view;
   function ensureView(){
@@ -552,6 +563,7 @@
   }
   function openView(q){ensureView();view.querySelector('#bmrInput').value=q;view.classList.add('on');view.scrollTop=0;view.querySelector('#bmrWrap').innerHTML='<div class="bmr-loading">Searching the fleet…</div>';}
   function render(q,data){
+    if(data&&data.service==='jet')return renderJets(q,data);
     const wrap=view.querySelector('#bmrWrap');
     if(!data||!data.yachts||!data.yachts.length){
       wrap.innerHTML='<div class="bmr-brief"><p class="eyebrow">Your brief, noted</p><p class="q">'+esc(q)+'</p></div><p class="bmr-note" style="padding-top:50px">Our concierge will personally shape a shortlist for this brief.</p>'+CONC;
@@ -575,6 +587,33 @@
       +'<p class="bmr-note">Sample results shown while we connect the live charter feeds.</p>'+CONC;
     wrap.querySelectorAll('.bmr-cta').forEach(b=>b.addEventListener('click',()=>openEnquiry(b.dataset.yacht,b.dataset.tier,q)));
   }
+  function renderJets(q,data){
+    const wrap=view.querySelector('#bmrWrap');
+    if(!data.jets||!data.jets.length){
+      wrap.innerHTML='<div class="bmr-brief"><p class="eyebrow">Your brief, noted</p><p class="q">'+esc(q)+'</p></div><p class="bmr-note" style="padding-top:50px">Our aviation desk will personally source options for this route.</p>'+CONC;
+      return;
+    }
+    const r0=data.jets[0].route;
+    const routeLine=r0&&r0.from?('<div class="bmr-count" style="margin-top:4px">'+esc(r0.from)+' <span style="color:var(--gold)">&rarr;</span> '+esc(r0.to)+(r0.dist_nm?(' · '+esc(r0.dist_nm)+' nm'):'')+'</div>'):'';
+    const cards=data.jets.map((j,idx)=>{
+      const req=/request/i.test(j.availability||'');
+      const leg=/empty leg/i.test(j.availability||'');
+      const est=j.route&&j.route.est_price?('&approx; <b>'+esc(j.route.est_price)+'</b> this route'):('from <b>'+esc(j.rate)+'</b>');
+      const time=j.route&&j.route.est_time?(' · est. '+esc(j.route.est_time)):'';
+      return '<div class="bmr-card"><div class="bmr-img">'+plane(idx)
+        +'<span class="bmr-badge '+(req?'req':'avail')+'">'+esc(leg?'Empty leg':(req?'On request':'Available'))+'</span>'
+        +'<span class="bmr-type">'+esc(j.category)+'</span></div>'
+        +'<div class="bmr-body"><div class="bmr-loc">'+(j.route&&j.route.from_code?(esc(j.route.from_code)+' &rarr; '+esc(j.route.to_code)+esc(time)):esc('Based '+j.base))+'</div><h3>'+esc(j.name)+'</h3>'
+        +'<div class="bmr-specs">'+esc('Up to '+j.capacity+' passengers · '+j.rate+' · Vetted operator')+'</div>'
+        +'<div class="bmr-foot"><div class="bmr-price">'+est+'</div>'
+        +'<button class="bmr-cta" data-jet="'+esc(j.name)+'" data-route="'+esc(j.route?(j.route.from_code+' to '+j.route.to_code):'')+'">Request quote</button></div></div></div>';
+    }).join('');
+    wrap.innerHTML='<div class="bmr-brief"><p class="eyebrow">Curated for your brief</p><p class="q">'+esc(q)+'</p>'+routeLine+'</div>'
+      +'<div class="bmr-meta"><div class="bmr-count"><b>'+data.jets.length+' aircraft</b> matched your brief</div><div class="bmr-src"><span class="dot"></span>Live via the aviation network</div></div>'
+      +'<div class="bmr-grid">'+cards+'</div>'
+      +'<p class="bmr-note">Sample aircraft and guide pricing shown while we connect the live aviation feeds. All charters operated by licensed carriers; you contract directly with the operator.</p>'+CONC;
+    wrap.querySelectorAll('.bmr-cta').forEach(b=>b.addEventListener('click',()=>openEnquiry(b.dataset.jet,'jet',q,b.dataset.route)));
+  }
   async function runSearch(){
     const q=brief.value.trim();if(!q){brief.focus();return;}
     openView(q);
@@ -595,14 +634,15 @@
     modal.querySelector('#bmeClose').addEventListener('click',()=>modal.classList.remove('on'));
     modal.addEventListener('click',e=>{if(e.target===modal)modal.classList.remove('on');});
   }
-  function openEnquiry(yacht,tier,briefText){
+  function openEnquiry(yacht,tier,briefText,route){
     ensureModal();
-    ctx={yacht:yacht||'',tier:tier||'',brief:briefText||''};
+    ctx={yacht:yacht||'',tier:tier||'',brief:briefText||'',route:route||''};
     const req=(tier==='superyacht');
+    const jet=(tier==='jet');
     const c=modal.querySelector('#bmeContent');
-    c.innerHTML='<p class="bme-eyebrow">'+(req?'Request availability':'Enquire')+'</p>'
+    c.innerHTML='<p class="bme-eyebrow">'+(jet?'Request quote':(req?'Request availability':'Enquire'))+'</p>'
       +'<h3>'+esc(yacht)+'</h3>'
-      +'<p class="lead">Share your details and our concierge will confirm availability and shape your shortlist — usually within a few hours.</p>'
+      +'<p class="lead">'+(jet?'Share your details and our aviation desk will confirm availability and firm pricing with the operator — usually within the hour.':'Share your details and our concierge will confirm availability and shape your shortlist — usually within a few hours.')+'</p>'
       +'<div class="bme-row"><div class="bme-field"><label>First name</label><input id="bmeFirst" type="text"/></div><div class="bme-field"><label>Last name</label><input id="bmeLast" type="text"/></div></div>'
       +'<div class="bme-field"><label>Email</label><input id="bmeEmail" type="email" placeholder="you@example.com"/></div>'
       +'<div class="bme-field"><label>Phone (optional)</label><input id="bmePhone" type="tel"/></div>'
@@ -626,7 +666,7 @@
     try{
       const res=await fetch('/api/enquiry',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
         email:email,firstname:first,lastname:last,phone:phone,
-        yachts:ctx.yacht,tier:ctx.tier,tier_interest:ctx.tier,brief:ctx.brief,source:'ai_concierge'
+        yachts:ctx.yacht,tier:ctx.tier,tier_interest:ctx.tier,brief:ctx.brief,destination:ctx.route||undefined,source:'ai_concierge'
       })});
       ok=res.ok;
     }catch(e){}
