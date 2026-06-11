@@ -104,6 +104,8 @@
   }
 
 /* ===== ported machinery styles ===== */
+  .bmr-img>img.ph{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  
   .eyebrow{color:var(--gold);font-size:.72rem;letter-spacing:.26em;text-transform:uppercase;font-weight:600}
   
 .rchips{display:flex;flex-wrap:wrap;gap:8px}
@@ -684,6 +686,7 @@
       const req=y.tier==='superyacht'||/request/i.test(y.availability||'');
       const price=String(y.price||'').replace('EUR ','€');
       return '<div class="bmr-card"><div class="bmr-img">'+vessel(kind,idx)
+        +(y.photo?('<img class="ph" src="'+esc(y.photo)+'" alt="" loading="lazy" onerror="this.remove()">'):'')
         +'<span class="bmr-badge '+(req?'req':'avail')+'">'+esc(y.availability)+'</span>'
         +'<span class="bmr-type">'+esc(y.type)+'</span></div>'
         +'<div class="bmr-body"><div class="bmr-loc">'+esc(y.location)+'</div><h3>'+esc(y.name)+'</h3>'
@@ -696,7 +699,7 @@
       +'<div class="bmr-meta"><div class="bmr-count"><b>'+data.yachts.length+(data.yachts.length===1?' yacht':' yachts')+'</b> matched your brief</div><div class="bmr-src"><span class="dot"></span>Live via the charter network</div></div>'
       +'<div class="bmr-grid">'+cards+'</div>'
       +elevHtml(data)
-      +'<p class="bmr-note">Sample results shown while we connect the live charter feeds.</p>'+CONC;
+      +'<p class="bmr-note">'+(data.source==='live'?'Live availability and pricing via our charter network. Final confirmation by the operator.':'Sample results shown while we connect the live charter feeds.')+'</p>'+CONC;
     wrap.querySelectorAll('.bmr-cta').forEach(b=>b.addEventListener('click',()=>openEnquiry(b.dataset.yacht,b.dataset.tier,q)));
     wireExtras(q,data);
   }
