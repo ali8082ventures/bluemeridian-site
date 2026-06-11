@@ -8,7 +8,7 @@
 <link rel="icon" type="image/svg+xml" href="bluemeridian-favicon.svg">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Hanken+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root{--paper:#F4F2EB;--ink:#16243A;--ink-soft:#4d5a6e;--gold:#A07C3B;--gold-soft:#C3A45F;--line:#e3dfd3;--card:#FBFAF6}
+  :root{--paper:#F4F2EB;--paper-2:#FBFAF6;--ink:#16243A;--ink-soft:#4d5a6e;--gold:#A07C3B;--gold-soft:#C3A45F;--line:#e3dfd3;--line-2:#e3dfd3;--card:#FBFAF6}
   *{margin:0;padding:0;box-sizing:border-box}
   body{font-family:'Hanken Grotesk',sans-serif;background:var(--paper);color:var(--ink);-webkit-font-smoothing:antialiased}
   .wrap{max-width:1280px;margin:0 auto;padding:0 32px}
@@ -104,6 +104,31 @@
   }
 
 /* ===== ported machinery styles ===== */
+  /* Yacht detail modal */
+  .bmd-modal{position:fixed;inset:0;z-index:290;background:rgba(13,24,40,.55);display:none;align-items:center;justify-content:center;padding:20px}
+  .bmd-modal.on{display:flex}
+  .bmd-card{background:var(--paper-2);border-radius:14px;max-width:880px;width:100%;max-height:92vh;overflow-y:auto;position:relative;padding:26px}
+  .bmd-close{position:absolute;top:14px;right:16px;background:none;border:none;font-size:1.5rem;color:var(--ink-soft);cursor:pointer;line-height:1;z-index:2}
+  .bmd-grid{display:grid;grid-template-columns:1.15fr 1fr;gap:26px}
+  .bmd-main{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:10px;background:#E8E4D8}
+  .bmd-thumbs{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+  .bmd-thumbs img{width:64px;height:48px;object-fit:cover;border-radius:6px;cursor:pointer;border:2px solid transparent;background:#E8E4D8}
+  .bmd-thumbs img.sel{border-color:var(--gold)}
+  .bmd-kicker{color:var(--gold);font-size:.68rem;letter-spacing:.22em;text-transform:uppercase;font-weight:600}
+  .bmd-card h3{font-family:'Fraunces',serif;font-weight:400;font-size:1.6rem;margin:8px 0 2px;line-height:1.2}
+  .bmd-loc{color:var(--ink-soft);font-size:.9rem;margin-bottom:14px}
+  .bmd-specs{display:grid;grid-template-columns:1fr 1fr;gap:7px 16px;margin:12px 0 14px}
+  .bmd-specs div{font-size:.9rem;color:var(--ink-soft);border-bottom:1px solid var(--line);padding-bottom:6px}
+  .bmd-specs b{color:var(--ink);font-weight:600}
+  .bmd-sub{color:var(--gold);font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;font-weight:600;margin:14px 0 8px}
+  .bmd-eq{display:flex;flex-wrap:wrap;gap:7px}
+  .bmd-eq span{background:#fff;border:1px solid var(--line);border-radius:999px;padding:5px 12px;font-size:.78rem;color:var(--ink-soft)}
+  .bmd-note{font-size:.78rem;color:#8a93a3;margin-top:14px;line-height:1.5}
+  .bmd-cta{margin-top:16px;width:100%;background:var(--ink);color:#fff;border:none;border-radius:999px;padding:14px;font-size:.84rem;font-weight:600;letter-spacing:.1em;cursor:pointer;font-family:inherit}
+  .bmd-cta:hover{background:#22324d}
+  .bmd-loading{padding:60px;text-align:center;color:var(--ink-soft);font-family:'Fraunces',serif;font-style:italic}
+  @media(max-width:700px){.bmd-grid{grid-template-columns:1fr}.bmd-card{padding:20px}}
+
   .bmr-img>img.ph{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
   
   .eyebrow{color:var(--gold);font-size:.72rem;letter-spacing:.26em;text-transform:uppercase;font-weight:600}
@@ -685,7 +710,7 @@
       const kind=/sail/i.test(y.type||'')?'sail':(y.tier==='superyacht'?'super':'motor');
       const req=y.tier==='superyacht'||/request/i.test(y.availability||'');
       const price=String(y.price||'').replace('EUR ','€');
-      return '<div class="bmr-card"><div class="bmr-img">'+vessel(kind,idx)
+      return '<div class="bmr-card"'+(y.id?(' data-yid="'+y.id+'" style="cursor:pointer"'):'')+'><div class="bmr-img">'+vessel(kind,idx)
         +(y.photo?('<img class="ph" src="'+esc(y.photo)+'" alt="" loading="lazy" onerror="this.remove()">'):'')
         +'<span class="bmr-badge '+(req?'req':'avail')+'">'+esc(y.availability)+'</span>'
         +'<span class="bmr-type">'+esc(y.type)+'</span></div>'
@@ -700,7 +725,8 @@
       +'<div class="bmr-grid">'+cards+'</div>'
       +elevHtml(data)
       +'<p class="bmr-note">'+(data.source==='live'?'Live availability and pricing via our charter network. Final confirmation by the operator.':'Sample results shown while we connect the live charter feeds.')+'</p>'+CONC;
-    wrap.querySelectorAll('.bmr-cta').forEach(b=>b.addEventListener('click',()=>openEnquiry(b.dataset.yacht,b.dataset.tier,q)));
+    wrap.querySelectorAll('.bmr-cta').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();openEnquiry(b.dataset.yacht,b.dataset.tier,q);}));
+    wrap.querySelectorAll('.bmr-card[data-yid]').forEach(c=>c.addEventListener('click',()=>openYachtDetail(c.dataset.yid,q)));
     wireExtras(q,data);
   }
   function renderJets(q,data){
@@ -757,6 +783,64 @@
     var b=view.querySelector('#bmrExpCta');
     if(b)b.addEventListener('click',function(){openEnquiry('Bespoke experience','experience',q);});
     wireExtras(q,data);
+  }
+  let dmodal=null;const DCACHE={};
+  function ensureDetailModal(){
+    if(dmodal)return;
+    dmodal=document.createElement('div');dmodal.className='bmd-modal';
+    dmodal.innerHTML='<div class="bmd-card"><button class="bmd-close" aria-label="Close">\u00D7</button><div id="bmdContent"></div></div>';
+    document.body.appendChild(dmodal);
+    dmodal.addEventListener('click',e=>{if(e.target===dmodal)dmodal.classList.remove('on');});
+    dmodal.querySelector('.bmd-close').addEventListener('click',()=>dmodal.classList.remove('on'));
+  }
+  function renderDetail(y,q){
+    const c=dmodal.querySelector('#bmdContent');
+    const pics=(y.pictures&&y.pictures.length)?y.pictures:[];
+    const thumbs=pics.map((p,i)=>'<img src="'+esc(p)+'" class="'+(i===0?'sel':'')+'" data-i="'+i+'" loading="lazy" onerror="this.remove()">').join('');
+    const sp=[];
+    if(y.berths)sp.push('<div>Guests <b>'+esc(y.berths)+'</b></div>');
+    if(y.cabins)sp.push('<div>Cabins <b>'+esc(y.cabins)+'</b></div>');
+    if(y.wc)sp.push('<div>Bathrooms <b>'+esc(y.wc)+'</b></div>');
+    if(y.loa)sp.push('<div>Length <b>'+esc(y.loa)+'m</b></div>');
+    if(y.buildYear)sp.push('<div>Built <b>'+esc(y.buildYear)+'</b></div>');
+    if(y.draft)sp.push('<div>Draft <b>'+esc(y.draft)+'m</b></div>');
+    if(y.engines)sp.push('<div>Engines <b>'+esc(y.engines)+(y.enginePower?(' \u00D7 '+esc(y.enginePower)+'hp'):'')+'</b></div>');
+    if(y.crewCabins)sp.push('<div>Crew cabins <b>'+esc(y.crewCabins)+'</b></div>');
+    const eq=(y.equipment||[]).slice(0,16).map(e=>'<span>'+esc(e)+'</span>').join('')
+      +((y.equipment||[]).length>16?('<span>+'+((y.equipment||[]).length-16)+' more aboard</span>'):'');
+    c.innerHTML='<div class="bmd-grid"><div>'
+      +(pics.length?('<img class="bmd-main" id="bmdMain" src="'+esc(pics[0])+'" alt="" onerror="this.style.display=\'none\'">'):'' )
+      +(pics.length>1?('<div class="bmd-thumbs">'+thumbs+'</div>'):'')
+      +'</div><div>'
+      +'<p class="bmd-kicker">'+esc(y.category||'Yacht')+'</p>'
+      +'<h3>'+esc(y.name)+'</h3>'
+      +'<p class="bmd-loc">'+esc(y.location||'')+'</p>'
+      +'<div class="bmd-specs">'+sp.join('')+'</div>'
+      +(eq?('<p class="bmd-sub">What\u2019s aboard</p><div class="bmd-eq">'+eq+'</div>'):'')
+      +'<p class="bmd-note">Charter includes the yacht as equipped above. Running costs, extras and a refundable deposit'+(y.deposit?(' (approx. \u20AC'+Number(y.deposit).toLocaleString('en-GB')+')'):'')+' are confirmed by the operator at booking.</p>'
+      +'<button class="bmd-cta" id="bmdEnquire">Enquire about this yacht</button>'
+      +'</div></div>';
+    c.querySelectorAll('.bmd-thumbs img').forEach(t=>t.addEventListener('click',()=>{
+      const m=c.querySelector('#bmdMain');if(m)m.src=t.src;
+      c.querySelectorAll('.bmd-thumbs img').forEach(x=>x.classList.remove('sel'));t.classList.add('sel');
+    }));
+    c.querySelector('#bmdEnquire').addEventListener('click',()=>{
+      dmodal.classList.remove('on');
+      openEnquiry(y.name,'bookable',q);
+    });
+  }
+  async function openYachtDetail(id,q){
+    ensureDetailModal();
+    dmodal.classList.add('on');
+    const c=dmodal.querySelector('#bmdContent');
+    if(DCACHE[id]){renderDetail(DCACHE[id],q);return;}
+    c.innerHTML='<div class="bmd-loading">Fetching the details\u2026</div>';
+    try{
+      const r=await fetch('/api/yacht',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:Number(id)})});
+      const j=await r.json();
+      if(j&&j.ok&&j.yacht){DCACHE[id]=j.yacht;renderDetail(j.yacht,q);}
+      else c.innerHTML='<div class="bmd-loading">Details are with our concierge \u2014 enquire and we\u2019ll share everything.</div>';
+    }catch(e){c.innerHTML='<div class="bmd-loading">Details are with our concierge \u2014 enquire and we\u2019ll share everything.</div>';}
   }
   async function runSearch(){
     const q=brief.value.trim();if(!q){brief.focus();return;}
