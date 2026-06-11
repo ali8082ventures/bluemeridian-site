@@ -63,6 +63,46 @@
 
   
 
+  /* ===== Mobile responsiveness (Atlas) ===== */
+  @media(max-width:1020px){
+    .tile{grid-column:span 3}
+    .tile.feature{grid-column:span 6}
+    .tile.journey{grid-column:span 6}
+  }
+  @media(max-width:900px){
+    .wrap{padding:0 18px}
+    .mast{flex-wrap:wrap;gap:12px;padding:12px 0}
+    .mast nav{margin-left:auto;gap:16px}
+    .mast nav a{font-size:.82rem}
+    .askbar{order:3;flex-basis:100%;max-width:none}
+    .intro{padding:44px 0 20px}
+    .intro p{font-size:.96rem}
+    .tile.journey{flex-direction:column}
+    .tile.journey .art{flex:none}
+    .tile.journey .art svg{height:auto}
+    .tile.journey .tbody{padding:24px 22px 26px}
+    .tile.journey .tbody h3{font-size:1.5rem}
+    .leg{flex-direction:column;gap:2px;margin:10px 0}
+    .leg b{min-width:0}
+    .strip .wrap{gap:14px;padding:20px 18px;flex-direction:column;align-items:flex-start}
+    .strip .sep{display:none}
+  }
+  @media(max-width:640px){
+    .tile,.tile.feature{grid-column:span 6}
+    .atlas{gap:16px;padding:18px 0 24px}
+    .tbody{padding:18px 18px 20px}
+    .tbody h3{font-size:1.32rem}
+    .intro h1{font-size:2rem}
+    .mast nav{display:none}
+    .logo span{font-size:.84rem;letter-spacing:.26em}
+    .askbar input{font-size:.88rem}
+    .tag{top:12px;left:12px;font-size:.6rem;padding:5px 11px}
+  }
+  @media(max-width:640px){
+    .bmr-logo{display:none}
+    .bmr-bar{padding:10px 14px;gap:10px}
+  }
+
 /* ===== ported machinery styles ===== */
   .eyebrow{color:var(--gold);font-size:.72rem;letter-spacing:.26em;text-transform:uppercase;font-weight:600}
   
@@ -653,7 +693,7 @@
     }).join('');
     wrap.innerHTML='<div class="bmr-brief"><p class="eyebrow">Curated for your brief</p><p class="q">'+esc(q)+'</p></div>'
       +noteHtml(data)
-      +'<div class="bmr-meta"><div class="bmr-count"><b>'+data.yachts.length+' yachts</b> matched your brief</div><div class="bmr-src"><span class="dot"></span>Live via the charter network</div></div>'
+      +'<div class="bmr-meta"><div class="bmr-count"><b>'+data.yachts.length+(data.yachts.length===1?' yacht':' yachts')+'</b> matched your brief</div><div class="bmr-src"><span class="dot"></span>Live via the charter network</div></div>'
       +'<div class="bmr-grid">'+cards+'</div>'
       +elevHtml(data)
       +'<p class="bmr-note">Sample results shown while we connect the live charter feeds.</p>'+CONC;
