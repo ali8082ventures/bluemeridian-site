@@ -637,7 +637,7 @@
       </div>
       <div class="f-cols">
         <div class="f-col"><h5>Charter</h5><a href="#collection">Yachts</a><a href="#collection">Superyachts</a><a href="#collection">Private jets</a></div>
-        <div class="f-col"><h5>House</h5><a href="#">Our approach</a><a href="#access">Discretion</a><a href="/privacy.html">Privacy &amp; cookies</a><a href="/terms.html">Terms of use</a><a href="#" id="bmCookiePrefs">Cookie preferences</a></div>
+        <div class="f-col"><h5>House</h5><a href="/booking.html">How booking works</a><a href="#access">Discretion</a><a href="/privacy.html">Privacy &amp; cookies</a><a href="/terms.html">Terms of use</a><a href="#" id="bmCookiePrefs">Cookie preferences</a></div>
         <div class="f-col"><h5>Concierge</h5><a href="https://wa.me/PLACEHOLDER" target="_blank" rel="noopener">WhatsApp</a><a href="https://t.me/PLACEHOLDER" target="_blank" rel="noopener">Telegram</a><a href="#">concierge@bluemeridian.ai</a></div>
       </div>
     </div>
@@ -733,14 +733,14 @@
       const kind=/sail/i.test(y.type||'')?'sail':(y.tier==='superyacht'?'super':'motor');
       const req=y.tier==='superyacht'||/request/i.test(y.availability||'');
       const price=String(y.price||'').replace('EUR ','€');
-      return '<div class="bmr-card"'+(y.id?(' data-yid="'+y.id+'" style="cursor:pointer"'):'')+'><div class="bmr-img">'+vessel(kind,idx)
+      return '<div class="bmr-card"'+(y.id?(' data-yid="'+y.id+'" data-price="'+esc(y.price||'')+'" style="cursor:pointer"'):'')+'><div class="bmr-img">'+vessel(kind,idx)
         +(y.photo?('<img class="ph" src="'+esc(y.photo)+'" alt="" loading="lazy" onerror="this.remove()">'):'')
         +'<span class="bmr-badge '+(req?'req':'avail')+'">'+esc(y.availability)+'</span>'
         +'<span class="bmr-type">'+esc(y.type)+'</span></div>'
         +'<div class="bmr-body"><div class="bmr-loc">'+esc(y.location)+'</div><h3>'+esc(y.name)+'</h3>'
         +'<div class="bmr-specs">'+esc(y.guests+' guests · '+y.cabins+' cabins · '+y.crew+' crew')+'</div>'
         +'<div class="bmr-foot"><div class="bmr-price">from <b>'+esc(price)+'</b> / week</div>'
-        +'<button class="bmr-cta" data-yacht="'+esc(y.name)+'" data-tier="'+esc(y.tier||'')+'">'+(req?'Request':'Enquire')+'</button></div></div></div>';
+        +'<button class="bmr-cta" data-yacht="'+esc(y.name)+'" data-price="'+esc(y.price||'')+'" data-tier="'+esc(y.tier||'')+'">'+(req?'Request':'Enquire')+'</button></div></div></div>';
     }).join('');
     wrap.innerHTML='<div class="bmr-brief"><p class="eyebrow">Curated for your brief</p><p class="q">'+esc(q)+'</p></div>'
       +noteHtml(data)
@@ -748,8 +748,8 @@
       +'<div class="bmr-grid">'+cards+'</div>'
       +elevHtml(data)
       +'<p class="bmr-note">'+(data.source==='live'?'Live availability and pricing via our charter network. Final confirmation by the operator.':'Sample results shown while we connect the live charter feeds.')+'</p>'+CONC;
-    wrap.querySelectorAll('.bmr-cta').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();openEnquiry(b.dataset.yacht,b.dataset.tier,q);}));
-    wrap.querySelectorAll('.bmr-card[data-yid]').forEach(c=>c.addEventListener('click',()=>openYachtDetail(c.dataset.yid,q)));
+    wrap.querySelectorAll('.bmr-cta').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();openEnquiry(b.dataset.yacht,b.dataset.tier,q,undefined,b.dataset.price);}));
+    wrap.querySelectorAll('.bmr-card[data-yid]').forEach(c=>c.addEventListener('click',()=>openYachtDetail(c.dataset.yid,q,c.dataset.price)));
     wireExtras(q,data);
   }
   function renderJets(q,data){
@@ -849,10 +849,10 @@
     }));
     c.querySelector('#bmdEnquire').addEventListener('click',()=>{
       dmodal.classList.remove('on');
-      openEnquiry(y.name,'bookable',q);
+      openEnquiry(y.name,'bookable',q,undefined,window.__bmdPrice);
     });
   }
-  async function openYachtDetail(id,q){
+  async function openYachtDetail(id,q,price){window.__bmdPrice=price||'';
     ensureDetailModal();
     dmodal.classList.add('on');
     const c=dmodal.querySelector('#bmdContent');
@@ -885,9 +885,9 @@
     modal.querySelector('#bmeClose').addEventListener('click',()=>modal.classList.remove('on'));
     modal.addEventListener('click',e=>{if(e.target===modal)modal.classList.remove('on');});
   }
-  function openEnquiry(yacht,tier,briefText,route){
+  function openEnquiry(yacht,tier,briefText,route,price){
     ensureModal();
-    ctx={yacht:yacht||'',tier:tier||'',brief:briefText||'',route:route||''};
+    ctx={yacht:yacht||'',tier:tier||'',brief:briefText||'',route:route||'',price:price||''};
     const req=(tier==='superyacht');
     const jet=(tier==='jet');
     const exp=(tier==='experience');
@@ -919,7 +919,7 @@
     try{
       const res=await fetch('/api/enquiry',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
         email:email,firstname:first,lastname:last,phone:phone,
-        yachts:ctx.yacht,tier:ctx.tier,tier_interest:ctx.tier,brief:ctx.brief,destination:ctx.route||undefined,source:'ai_concierge'
+        yachts:ctx.yacht,tier:ctx.tier,tier_interest:ctx.tier,brief:ctx.brief,destination:ctx.route||undefined,client_price:ctx.price||undefined,source:'ai_concierge'
       })});
       ok=res.ok;
     }catch(e){}
