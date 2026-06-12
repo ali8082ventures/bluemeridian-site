@@ -104,6 +104,20 @@
   }
 
 /* ===== ported machinery styles ===== */
+  /* Concierge picks + clarify */
+  .bmr-card{position:relative}
+  .bmr-card.pick{border:1px solid var(--gold);box-shadow:0 10px 30px rgba(160,124,59,.16)}
+  .bmr-pickTag{position:absolute;top:12px;left:12px;background:var(--gold);color:#fff;border-radius:999px;padding:5px 13px;font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;font-weight:600;z-index:2}
+  .bmr-card.pick .bmr-badge{top:44px}
+  .bmr-reason{font-family:'Fraunces',serif;font-style:italic;font-weight:300;color:var(--ink);font-size:.92rem;line-height:1.5;margin:8px 0 0}
+  .bmq{max-width:620px;background:#FBFAF6;border:1px solid var(--line);border-radius:14px;padding:28px;margin-top:30px}
+  .bmq h3{font-family:'Fraunces',serif;font-weight:400;font-size:1.35rem;margin:8px 0 16px;line-height:1.3}
+  .bmq .row{display:flex;gap:10px}
+  .bmq input{flex:1;border:1px solid var(--line);border-radius:999px;padding:12px 18px;font-family:inherit;font-size:16px;color:var(--ink);background:#fff;outline:none}
+  .bmq input:focus{border-color:var(--gold)}
+  .bmq button{background:var(--ink);color:#fff;border:none;border-radius:999px;padding:12px 22px;font-size:.78rem;font-weight:600;letter-spacing:.08em;cursor:pointer;font-family:inherit}
+  @media(max-width:640px){.bmq{padding:20px}.bmq .row{flex-direction:column}}
+
   /* Mobile polish: stop iOS focus-zoom, lock heights, breathe */
   @media(max-width:640px){
     .askbar input,#bmrInput,.bme-field input{font-size:16px}
@@ -721,6 +735,7 @@
   }
   function openView(q){ensureView();view.querySelector('#bmrInput').value=q;view.classList.add('on');document.body.style.overflow='hidden';view.scrollTop=0;view.querySelector('#bmrWrap').innerHTML='<div class="bmr-loading">Consulting your concierge…</div>';}
   function render(q,data){
+    if(data&&data.intent==='clarify')return renderClarify(q,data);
     if(data&&data.intent==='inspire')return renderIdeas(q,data);
     if(data&&data.intent==='experience')return renderExperience(q,data);
     if(data&&data.service==='jet')return renderJets(q,data);
@@ -729,16 +744,29 @@
       wrap.innerHTML='<div class="bmr-brief"><p class="eyebrow">Your brief, noted</p><p class="q">'+esc(q)+'</p></div><p class="bmr-note" style="padding-top:50px">Our concierge will personally shape a shortlist for this brief.</p>'+CONC;
       return;
     }
+    window.__bmrPicks={};
+    (data.picks||[]).forEach(function(p){if(p&&p.id)window.__bmrPicks[p.id]=p.reason||'';});
+    if(data.picks&&data.picks.length){
+      var rank={};data.picks.forEach(function(p,i){if(p&&p.id)rank[p.id]=i;});
+      data.yachts.sort(function(x,z){
+        var rx=(x.id in rank)?rank[x.id]:99, rz=(z.id in rank)?rank[z.id]:99;
+        return rx-rz;
+      });
+    }
     const cards=data.yachts.map((y,idx)=>{
       const kind=/sail/i.test(y.type||'')?'sail':(y.tier==='superyacht'?'super':'motor');
       const req=y.tier==='superyacht'||/request/i.test(y.availability||'');
       const price=String(y.price||'').replace('EUR ','€');
-      return '<div class="bmr-card"'+(y.id?(' data-yid="'+y.id+'" data-price="'+esc(y.price||'')+'" style="cursor:pointer"'):'')+'><div class="bmr-img">'+vessel(kind,idx)
+      var reason=(window.__bmrPicks&&y.id&&window.__bmrPicks[y.id])||'';
+      return '<div class="bmr-card'+(reason?' pick':'')+'"'+(y.id?(' data-yid="'+y.id+'" data-price="'+esc(y.price||'')+'" style="cursor:pointer"'):'')+'>'
+        +(reason?'<span class="bmr-pickTag">Concierge\u2019s pick</span>':'')
+        +'<div class="bmr-img">'+vessel(kind,idx)
         +(y.photo?('<img class="ph" src="'+esc(y.photo)+'" alt="" loading="lazy" onerror="this.remove()">'):'')
         +'<span class="bmr-badge '+(req?'req':'avail')+'">'+esc(y.availability)+'</span>'
         +'<span class="bmr-type">'+esc(y.type)+'</span></div>'
         +'<div class="bmr-body"><div class="bmr-loc">'+esc(y.location)+'</div><h3>'+esc(y.name)+'</h3>'
         +'<div class="bmr-specs">'+esc(y.guests+' guests · '+y.cabins+' cabins · '+y.crew+' crew')+'</div>'
+        +(reason?('<p class="bmr-reason">'+esc(reason)+'</p>'):'')
         +'<div class="bmr-foot"><div class="bmr-price">from <b>'+esc(price)+'</b> / week</div>'
         +'<button class="bmr-cta" data-yacht="'+esc(y.name)+'" data-price="'+esc(y.price||'')+'" data-tier="'+esc(y.tier||'')+'">'+(req?'Request':'Enquire')+'</button></div></div></div>';
     }).join('');
@@ -781,6 +809,26 @@
       +'<p class="bmr-note">Sample aircraft and guide pricing shown while we connect the live aviation feeds. All charters operated by licensed carriers; you contract directly with the operator.</p>'+CONC;
     wrap.querySelectorAll('.bmr-cta').forEach(b=>b.addEventListener('click',()=>openEnquiry(b.dataset.jet,'jet',q,b.dataset.route)));
     wireExtras(q,data);
+  }
+  function renderClarify(q,data){
+    const wrap=view.querySelector('#bmrWrap');
+    wrap.innerHTML='<div class="bmr-brief"><p class="eyebrow">One small question</p><p class="q">'+esc(q)+'</p></div>'
+      +noteHtml(data)
+      +'<div class="bmq"><p style="color:var(--gold);font-size:.68rem;letter-spacing:.22em;text-transform:uppercase;font-weight:600">To get this exactly right</p>'
+      +'<h3>'+esc(data.question||'Could you tell me a little more?')+'</h3>'
+      +'<div class="row"><input id="bmqIn" autocomplete="off" placeholder="Your answer\u2026"><button id="bmqGo">Continue</button></div></div>'
+      +CONC;
+    const go=function(){
+      const v=wrap.querySelector('#bmqIn').value.trim();
+      if(!v)return;
+      const merged=q+' \u2014 '+v;
+      brief.value=merged;
+      view.querySelector('#bmrInput').value=merged;
+      runSearch();
+    };
+    wrap.querySelector('#bmqGo').addEventListener('click',go);
+    wrap.querySelector('#bmqIn').addEventListener('keydown',function(e){if(e.key==='Enter')go();});
+    wrap.querySelector('#bmqIn').focus();
   }
   function renderIdeas(q,data){
     const wrap=view.querySelector('#bmrWrap');
