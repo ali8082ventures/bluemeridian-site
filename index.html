@@ -112,8 +112,10 @@
   .at-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px}
   .at-tile{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;display:flex;flex-direction:column}
   .at-art{height:170px}
-  .at-art img{width:100%;height:100%;display:block;object-fit:cover}
-  .at-art.noimg{background:linear-gradient(135deg,#EFE9DC,#E2DACA)}
+  .at-art{position:relative;overflow:hidden}
+  .at-art svg{width:100%;height:100%;display:block}
+  .at-art img.at-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .35s}
+  .at-art img.at-photo.on{opacity:1}
   .at-body{padding:20px 22px 22px;display:flex;flex-direction:column;gap:8px;flex:1}
   .at-body h3{font-family:'Fraunces',serif;font-weight:400;font-size:1.35rem;line-height:1.2}
   .at-copy{color:var(--ink-soft);font-size:.92rem;line-height:1.6}
@@ -651,8 +653,23 @@
   <p class="at-lead">A small circle of partners whose work we trust aboard — arranged exclusively through Blue Meridian, case by case.</p>
   <div class="at-grid">
     <div class="at-tile">
-      <div class="at-art">
-        <img src="/assets/partners/lotus-1.jpg" alt="Flowers by Lotus Boutique" loading="lazy" onerror="this.parentElement.classList.add('noimg');this.remove()"></div>
+      <div class="at-art"><svg viewBox="0 0 360 200" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+          <rect width="360" height="200" fill="#EFE9DC"/>
+          <ellipse cx="180" cy="196" rx="92" ry="10" fill="#E2DACA"/>
+          <path d="M150 196 L155 130 Q180 120 205 130 L210 196 Z" fill="#16243A"/>
+          <g stroke="#5B6E54" stroke-width="3" fill="none" stroke-linecap="round">
+            <path d="M178 128 C 172 95, 160 80, 142 66"/>
+            <path d="M182 128 C 186 92, 196 74, 214 60"/>
+            <path d="M180 128 C 180 96, 178 76, 176 56"/>
+          </g>
+          <circle cx="138" cy="62" r="11" fill="#A07C3B"/><circle cx="138" cy="62" r="4.5" fill="#F4F2EB"/>
+          <circle cx="218" cy="56" r="12" fill="#B98A8A"/><circle cx="218" cy="56" r="5" fill="#F4F2EB"/>
+          <circle cx="176" cy="48" r="10" fill="#C3A45F"/><circle cx="176" cy="48" r="4" fill="#F4F2EB"/>
+          <path d="M158 96 q-12 -2 -18 -14" stroke="#5B6E54" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <path d="M200 90 q14 -4 18 -16" stroke="#5B6E54" stroke-width="3" fill="none" stroke-linecap="round"/>
+        </svg>
+        <img class="at-photo" alt="Flowers by Lotus Boutique" data-srcs="/assets/partners/lotus-1.jpg,/assets/partners/lotus-2.jpg,/assets/partners/lotus-3.jpg,/assets/partners/lotus-4.jpg">
+      </div>
       <div class="at-body">
         <p class="tkicker">With Lotus Boutique · Flowers</p>
         <h3>Flowers, met at the gangway</h3>
@@ -664,8 +681,21 @@
       </div>
     </div>
     <div class="at-tile">
-      <div class="at-art">
-        <img src="/assets/partners/photo-1.jpg" alt="Private photography aboard" loading="lazy" onerror="this.parentElement.classList.add('noimg');this.remove()"></div>
+      <div class="at-art"><svg viewBox="0 0 360 200" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+          <rect width="360" height="200" fill="#16243A"/>
+          <circle cx="288" cy="52" r="26" fill="#C3A45F"/>
+          <path d="M0 160 Q 90 138 180 156 T 360 150 L 360 200 L 0 200 Z" fill="#22324d"/>
+          <g>
+            <rect x="118" y="78" width="124" height="78" rx="12" fill="#F4F2EB"/>
+            <rect x="150" y="64" width="60" height="20" rx="6" fill="#F4F2EB"/>
+            <circle cx="180" cy="117" r="27" fill="#16243A"/>
+            <circle cx="180" cy="117" r="17" fill="#3A4A6A"/>
+            <circle cx="172" cy="109" r="5" fill="#F4F2EB" opacity=".85"/>
+            <circle cx="226" cy="92" r="5" fill="#A07C3B"/>
+          </g>
+        </svg>
+        <img class="at-photo" alt="Private photography aboard" data-srcs="/assets/partners/photo-1.jpg,/assets/partners/photo-2.jpg,/assets/partners/photo-3.jpg,/assets/partners/photo-4.jpg">
+      </div>
       <div class="at-body">
         <p class="tkicker">Private photography</p>
         <h3>Your trip, beautifully witnessed</h3>
@@ -738,6 +768,19 @@
   const HINTS=['Ask the concierge — a place, a date, an occasion…','A week on the Amalfi Coast in September, eight of us…','A jet from Farnborough to Nice tomorrow morning…','Something special for a milestone birthday…','A safari in green season, just the two of us…'];
   let hi=0;setInterval(()=>{if(document.activeElement!==brief&&!brief.value){hi=(hi+1)%HINTS.length;brief.placeholder=HINTS[hi];}},4600);
   brief.addEventListener('keydown',e=>{if(e.key==='Enter')runSearch();});
+  document.querySelectorAll('.at-photo').forEach(function(img){
+    var list=(img.dataset.srcs||'').split(',').filter(Boolean);
+    if(!list.length)return;
+    var start=Math.floor(Math.random()*list.length),tries=0;
+    function attempt(i){
+      if(tries>=list.length){img.remove();return}
+      tries++;
+      img.onerror=function(){attempt((i+1)%list.length)};
+      img.onload=function(){img.classList.add('on')};
+      img.src=list[i];
+    }
+    attempt(start);
+  });
   document.querySelectorAll('.at-cta').forEach(function(b){
     b.addEventListener('click',function(){
       openEnquiry(b.dataset.partner,'partner','Partner add-on enquiry: '+b.dataset.partner);
