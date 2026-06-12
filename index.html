@@ -652,11 +652,11 @@
       <div class="f-cols">
         <div class="f-col"><h5>Charter</h5><a href="#collection">Yachts</a><a href="#collection">Superyachts</a><a href="#collection">Private jets</a></div>
         <div class="f-col"><h5>House</h5><a href="/booking.html">How booking works</a><a href="#access">Discretion</a><a href="/privacy.html">Privacy &amp; cookies</a><a href="/terms.html">Terms of use</a><a href="#" id="bmCookiePrefs">Cookie preferences</a></div>
-        <div class="f-col"><h5>Concierge</h5><a href="https://wa.me/PLACEHOLDER" target="_blank" rel="noopener">WhatsApp</a><a href="https://t.me/PLACEHOLDER" target="_blank" rel="noopener">Telegram</a><a href="#">concierge@bluemeridian.ai</a></div>
+        <div class="f-col"><h5>Concierge</h5><a href="https://wa.me/447448169575" target="_blank" rel="noopener">WhatsApp</a><a href="https://t.me/PLACEHOLDER" target="_blank" rel="noopener">Telegram</a><a href="#">concierge@bluemeridian.ai</a></div>
       </div>
     </div>
     <div class="f-bottom" style="flex-direction:column;gap:8px;align-items:flex-start">
-      <span>© 2026 Blue Meridian Technologies Ltd. All rights reserved. Arranged under MYBA standard terms via vetted partners.</span>
+      <span>© 2026 Blue Meridian Technologies Ltd. All rights reserved. Arranged under MYBA standard terms via vetted partners. Client funds are held in a dedicated account, separate from our operating funds, until operators are paid.</span>
       <span><a href="/privacy.html" style="color:inherit;text-decoration:underline">Privacy &amp; Cookies Policy</a> · <a href="/terms.html" style="color:inherit;text-decoration:underline">Terms of Use</a></span>
       <span>Blue Meridian Technologies Ltd is a company registered in England &amp; Wales, company number <a href="https://find-and-update.company-information.service.gov.uk/company/17272049" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline">17272049</a> (<a href="https://find-and-update.company-information.service.gov.uk/company/17272049" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline">Companies House</a>).</span>
       <span>Quietly, and well.</span>
@@ -715,13 +715,15 @@
     return '<div class="bmr-elev"><p class="bmr-elevTitle">To make it special</p><div class="bmr-chips">'+chips+'</div><button class="bmr-elevCta" id="bmrElevCta">Arrange this with the concierge</button></div>';
   }
   function wireExtras(q,d){
+    var wa=view.querySelector('.bmr-wa');
+    if(wa&&q)wa.href='https://wa.me/447448169575?text='+encodeURIComponent('Hello Blue Meridian \u2014 my brief: '+q);
     var b=view.querySelector('#bmrElevCta');
     if(b)b.addEventListener('click',function(){openEnquiry('Your trip, elevated','experience',q+(d&&d.elevations&&d.elevations.length?(' — with: '+d.elevations.join('; ')):''));});
     view.querySelectorAll('.bmr-ideaGo').forEach(function(g){
       if(g.dataset.brief)g.addEventListener('click',function(){brief.value=g.dataset.brief;view.querySelector('#bmrInput').value=g.dataset.brief;runSearch();});
     });
   }
-  const CONC='<div class="bmr-concierge"><p style="color:var(--ink-soft);margin-bottom:14px">Seen something you like? A Blue Meridian specialist will personally shape your shortlist and confirm availability.</p><a class="chat" href="https://wa.me/PLACEHOLDER" target="_blank" rel="noopener">WhatsApp the concierge</a><a class="chat" href="https://t.me/PLACEHOLDER" target="_blank" rel="noopener">Message on Telegram</a></div>';
+  const CONC='<div class="bmr-concierge"><p style="color:var(--ink-soft);margin-bottom:14px">Seen something you like? A Blue Meridian specialist will personally shape your shortlist and confirm availability.</p><a class="chat bmr-wa" href="https://wa.me/447448169575" target="_blank" rel="noopener">WhatsApp the concierge</a><a class="chat" href="https://t.me/PLACEHOLDER" target="_blank" rel="noopener">Message on Telegram</a></div>';
   let view;
   function ensureView(){
     if(view)return;
@@ -829,6 +831,7 @@
     wrap.querySelector('#bmqGo').addEventListener('click',go);
     wrap.querySelector('#bmqIn').addEventListener('keydown',function(e){if(e.key==='Enter')go();});
     wrap.querySelector('#bmqIn').focus();
+    wireExtras(q,data);
   }
   function renderIdeas(q,data){
     const wrap=view.querySelector('#bmrWrap');
@@ -973,7 +976,7 @@
     }catch(e){}
     c.innerHTML='<div class="bme-done"><p class="bme-eyebrow">Enquiry received</p><h3>Thank you'+(first?', '+esc(first):'')+'.</h3>'
       +'<p class="lead">A Blue Meridian specialist will be in touch shortly about <b>'+esc(ctx.yacht)+'</b>. Prefer to talk now?</p>'
-      +'<a class="chat" href="https://wa.me/PLACEHOLDER" target="_blank" rel="noopener">WhatsApp</a><a class="chat" href="https://t.me/PLACEHOLDER" target="_blank" rel="noopener">Telegram</a></div>';
+      +'<a class="chat" href="https://wa.me/447448169575" target="_blank" rel="noopener">WhatsApp</a><a class="chat" href="https://t.me/PLACEHOLDER" target="_blank" rel="noopener">Telegram</a></div>';
   }
 </script>
 <script>
