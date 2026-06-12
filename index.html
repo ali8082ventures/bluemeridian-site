@@ -104,6 +104,29 @@
   }
 
 /* ===== ported machinery styles ===== */
+  /* Partner ateliers */
+  .ateliers{border-top:1px solid var(--line);padding:54px 0 26px}
+  .at-eyebrow{color:var(--gold);font-size:.7rem;letter-spacing:.26em;text-transform:uppercase;font-weight:600;margin-bottom:10px}
+  .at-title{font-family:'Fraunces',serif;font-weight:300;font-size:clamp(1.6rem,3vw,2.1rem);margin-bottom:8px}
+  .at-lead{color:var(--ink-soft);max-width:560px;margin-bottom:26px;font-size:.96rem}
+  .at-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+  .at-tile{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;display:flex;flex-direction:column}
+  .at-art{height:170px}
+  .at-art svg{width:100%;height:100%;display:block}
+  .at-body{padding:20px 22px 22px;display:flex;flex-direction:column;gap:8px;flex:1}
+  .at-body h3{font-family:'Fraunces',serif;font-weight:400;font-size:1.35rem;line-height:1.2}
+  .at-copy{color:var(--ink-soft);font-size:.92rem;line-height:1.6}
+  .at-actions{display:flex;align-items:center;gap:16px;margin-top:auto;padding-top:10px;flex-wrap:wrap}
+  .at-cta{background:none;border:1px solid var(--gold);color:var(--gold);border-radius:999px;padding:10px 18px;font-size:.78rem;font-weight:600;letter-spacing:.06em;cursor:pointer;font-family:inherit}
+  .at-cta:hover{background:var(--gold);color:#fff}
+  .at-ext{color:var(--ink-soft);font-size:.82rem;text-decoration:none;border-bottom:1px solid var(--line)}
+  @media(max-width:760px){.at-grid{grid-template-columns:1fr}.ateliers{padding:40px 0 16px}}
+  .bme-partners{margin:4px 0 12px;padding:12px 14px;background:#F4F2EB;border-radius:10px}
+  .bme-partners p{font-size:.78rem;font-weight:600;letter-spacing:.04em;color:var(--ink);margin-bottom:8px}
+  .bme-partners p span{color:var(--ink-soft);font-weight:400}
+  .bme-check{display:flex;align-items:center;gap:9px;font-size:.88rem;color:var(--ink-soft);padding:4px 0;cursor:pointer}
+  .bme-check input{accent-color:var(--gold);width:16px;height:16px}
+
   /* Concierge picks + clarify */
   .bmr-card{position:relative}
   .bmr-card.pick{border:1px solid var(--gold);box-shadow:0 10px 30px rgba(160,124,59,.16)}
@@ -322,7 +345,7 @@
     <input id="brief" autocomplete="off" placeholder="Ask the concierge — a place, a date, an occasion…">
     <button id="go">ASK</button>
   </div>
-  <nav><a href="#atlas">Journeys</a><a href="#" class="navq" data-q="A crewed yacht in the Mediterranean this summer">Yachts</a><a href="#" class="navq" data-q="A private jet from London this month">Jets</a><a href="#house">House</a></nav>
+  <nav><a href="#atlas">Journeys</a><a href="#" class="navq" data-q="A crewed yacht in the Mediterranean this summer">Yachts</a><a href="#" class="navq" data-q="A private jet from London this month">Jets</a><a href="#house">Concierge</a></nav>
 </div></header>
 
 <section class="intro"><div class="wrap">
@@ -619,6 +642,70 @@
 
 </section>
 
+
+<!-- ===== Finishing touches: partner ateliers ===== -->
+<section class="ateliers" id="ateliers"><div class="wrap">
+  <p class="at-eyebrow">Finishing touches · Partner ateliers</p>
+  <h2 class="at-title">Made more memorable</h2>
+  <p class="at-lead">A small circle of partners whose work we trust aboard — arranged exclusively through Blue Meridian, case by case.</p>
+  <div class="at-grid">
+    <div class="at-tile">
+      <div class="at-art">
+        <svg viewBox="0 0 360 200" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+          <rect width="360" height="200" fill="#EFE9DC"/>
+          <ellipse cx="180" cy="196" rx="92" ry="10" fill="#E2DACA"/>
+          <path d="M150 196 L155 130 Q180 120 205 130 L210 196 Z" fill="#16243A"/>
+          <g stroke="#5B6E54" stroke-width="3" fill="none" stroke-linecap="round">
+            <path d="M178 128 C 172 95, 160 80, 142 66"/>
+            <path d="M182 128 C 186 92, 196 74, 214 60"/>
+            <path d="M180 128 C 180 96, 178 76, 176 56"/>
+          </g>
+          <circle cx="138" cy="62" r="11" fill="#A07C3B"/><circle cx="138" cy="62" r="4.5" fill="#F4F2EB"/>
+          <circle cx="218" cy="56" r="12" fill="#B98A8A"/><circle cx="218" cy="56" r="5" fill="#F4F2EB"/>
+          <circle cx="176" cy="48" r="10" fill="#C3A45F"/><circle cx="176" cy="48" r="4" fill="#F4F2EB"/>
+          <path d="M158 96 q-12 -2 -18 -14" stroke="#5B6E54" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <path d="M200 90 q14 -4 18 -16" stroke="#5B6E54" stroke-width="3" fill="none" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="at-body">
+        <p class="tkicker">With L Boutique · Flowers</p>
+        <h3>Flowers, met at the gangway</h3>
+        <p class="at-copy">Cabin arrangements, occasion bouquets and full-charter styling by L Boutique — placed aboard before you step on.</p>
+        <div class="at-actions">
+          <button class="at-cta" data-partner="Flowers by L Boutique">Arrange with the concierge</button>
+          <a class="at-ext" href="https://www.lboutique.co.uk" target="_blank" rel="noopener">lboutique.co.uk ↗</a>
+        </div>
+      </div>
+    </div>
+    <div class="at-tile">
+      <div class="at-art">
+        <svg viewBox="0 0 360 200" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+          <rect width="360" height="200" fill="#16243A"/>
+          <circle cx="288" cy="52" r="26" fill="#C3A45F"/>
+          <path d="M0 160 Q 90 138 180 156 T 360 150 L 360 200 L 0 200 Z" fill="#22324d"/>
+          <g>
+            <rect x="118" y="78" width="124" height="78" rx="12" fill="#F4F2EB"/>
+            <rect x="150" y="64" width="60" height="20" rx="6" fill="#F4F2EB"/>
+            <circle cx="180" cy="117" r="27" fill="#16243A"/>
+            <circle cx="180" cy="117" r="17" fill="#3A4A6A"/>
+            <circle cx="172" cy="109" r="5" fill="#F4F2EB" opacity=".85"/>
+            <circle cx="226" cy="92" r="5" fill="#A07C3B"/>
+          </g>
+        </svg>
+      </div>
+      <div class="at-body">
+        <p class="tkicker">Private photography</p>
+        <h3>Your trip, beautifully witnessed</h3>
+        <p class="at-copy">A custom photography experience alongside your charter — golden hours, candid days, one discreet artist. By application, case by case.</p>
+        <div class="at-actions">
+          <button class="at-cta" data-partner="Private photography">Arrange with the concierge</button>
+          <a class="at-ext" href="https://www.instagram.com/foto" target="_blank" rel="noopener">Portfolio ↗</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div></section>
+
 <section class="strip" id="house"><div class="wrap">
   <p><b>I.</b> Tell the concierge what you have in mind.</p><div class="sep"></div>
   <p><b>II.</b> We curate from a vetted network — fleets, operators, partners.</p><div class="sep"></div>
@@ -678,6 +765,16 @@
   const HINTS=['Ask the concierge — a place, a date, an occasion…','A week on the Amalfi Coast in September, eight of us…','A jet from Farnborough to Nice tomorrow morning…','Something special for a milestone birthday…','A safari in green season, just the two of us…'];
   let hi=0;setInterval(()=>{if(document.activeElement!==brief&&!brief.value){hi=(hi+1)%HINTS.length;brief.placeholder=HINTS[hi];}},4600);
   brief.addEventListener('keydown',e=>{if(e.key==='Enter')runSearch();});
+  document.querySelectorAll('.at-cta').forEach(function(b){
+    b.addEventListener('click',function(){
+      openEnquiry(b.dataset.partner,'partner','Partner add-on enquiry: '+b.dataset.partner);
+      setTimeout(function(){
+        var f=document.getElementById('bmePartFlowers'),p=document.getElementById('bmePartPhoto');
+        if(f&&/Flowers/i.test(b.dataset.partner))f.checked=true;
+        if(p&&/photo/i.test(b.dataset.partner))p.checked=true;
+      },60);
+    });
+  });
   document.querySelectorAll('.tile[data-brief]').forEach(function(t){
     t.addEventListener('click',function(){brief.value=t.dataset.brief;runSearch();});
   });
@@ -949,6 +1046,9 @@
       +'<div class="bme-row"><div class="bme-field"><label>First name</label><input id="bmeFirst" type="text"/></div><div class="bme-field"><label>Last name</label><input id="bmeLast" type="text"/></div></div>'
       +'<div class="bme-field"><label>Email</label><input id="bmeEmail" type="email" placeholder="you@example.com"/></div>'
       +'<div class="bme-field"><label>Phone (optional)</label><input id="bmePhone" type="tel"/></div>'
+      +'<div class="bme-partners"><p>Make it more memorable <span>(optional)</span></p>'
+      +'<label class="bme-check"><input type="checkbox" id="bmePartFlowers"> Flowers by L Boutique</label>'
+      +'<label class="bme-check"><input type="checkbox" id="bmePartPhoto"> Private photography</label></div>'
       +'<button class="bme-submit" id="bmeSubmit">Send enquiry</button>'
       +'<p style="font-size:.74rem;color:#8a93a3;margin-top:12px;line-height:1.5">By sending this enquiry you agree that we will use your details to respond and arrange your charter, as described in our <a href="/privacy.html" target="_blank" style="color:inherit;text-decoration:underline">Privacy &amp; Cookies Policy</a>.</p>'
       +'<p class="bme-err" id="bmeErr">Please enter your first name and a valid email.</p>';
@@ -970,7 +1070,9 @@
     try{
       const res=await fetch('/api/enquiry',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
         email:email,firstname:first,lastname:last,phone:phone,
-        yachts:ctx.yacht,tier:ctx.tier,tier_interest:ctx.tier,brief:ctx.brief,destination:ctx.route||undefined,client_price:ctx.price||undefined,source:'ai_concierge'
+        yachts:ctx.yacht,tier:ctx.tier,tier_interest:ctx.tier,brief:ctx.brief,destination:ctx.route||undefined,client_price:ctx.price||undefined,
+        partner_services:[c.querySelector('#bmePartFlowers').checked?'Flowers by L Boutique':null,c.querySelector('#bmePartPhoto').checked?'Private photography':null].filter(Boolean).join(', ')||undefined,
+        source:'ai_concierge'
       })});
       ok=res.ok;
     }catch(e){}
