@@ -107,5 +107,40 @@
 <footer><div class="wrap">
   <span>&copy; 2026 Blue Meridian Technologies Ltd · Registered in England &amp; Wales, company number <a href="https://find-and-update.company-information.service.gov.uk/company/17272049" target="_blank" rel="noopener">17272049</a> · <a href="/">Home</a> · <a href="/privacy.html">Privacy &amp; Cookies</a> · <a href="/terms.html">Terms of Use</a></span>
 </div></footer>
+
+<script>
+(function(){
+  function prefsOk(){try{return localStorage.getItem('bm_consent')==='all';}catch(e){return false;}}
+  var LANG=(function(){try{return localStorage.getItem('bm_lang')||sessionStorage.getItem('bm_lang')||'en';}catch(e){return 'en';}})();
+  var NOTE={
+    fr:'Cette page est disponible en anglais pour le moment. Notre conciergerie sera ravie d\u2019en parcourir chaque d\u00e9tail avec vous en fran\u00e7ais \u2014 par WhatsApp, Telegram ou e-mail. La version anglaise fait foi.',
+    de:'Diese Seite ist derzeit auf Englisch verf\u00fcgbar. Unser Concierge geht jedes Detail gern auf Deutsch mit Ihnen durch \u2014 per WhatsApp, Telegram oder E-Mail. Die englische Fassung ist ma\u00dfgeblich.',
+    it:'Questa pagina \u00e8 al momento disponibile in inglese. Il nostro concierge sar\u00e0 lieto di esaminarne ogni dettaglio con voi in italiano \u2014 via WhatsApp, Telegram o e-mail. Fa fede la versione inglese.',
+    es:'Esta p\u00e1gina est\u00e1 disponible en ingl\u00e9s por el momento. Nuestro conserje estar\u00e1 encantado de repasar cada detalle con usted en espa\u00f1ol \u2014 por WhatsApp, Telegram o correo. Prevalece la versi\u00f3n inglesa.',
+    ru:'\u042d\u0442\u0430 \u0441\u0442\u0440\u0430\u043d\u0438\u0446\u0430 \u043f\u043e\u043a\u0430 \u0434\u043e\u0441\u0442\u0443\u043f\u043d\u0430 \u043d\u0430 \u0430\u043d\u0433\u043b\u0438\u0439\u0441\u043a\u043e\u043c. \u041d\u0430\u0448 \u043a\u043e\u043d\u0441\u044c\u0435\u0440\u0436 \u0441 \u0443\u0434\u043e\u0432\u043e\u043b\u044c\u0441\u0442\u0432\u0438\u0435\u043c \u0440\u0430\u0437\u0431\u0435\u0440\u0451\u0442 \u043a\u0430\u0436\u0434\u0443\u044e \u0434\u0435\u0442\u0430\u043b\u044c \u0441 \u0432\u0430\u043c\u0438 \u043f\u043e-\u0440\u0443\u0441\u0441\u043a\u0438 \u2014 \u0432 WhatsApp, Telegram \u0438\u043b\u0438 \u043f\u043e \u043f\u043e\u0447\u0442\u0435. \u0410\u043d\u0433\u043b\u0438\u0439\u0441\u043a\u0430\u044f \u0432\u0435\u0440\u0441\u0438\u044f \u0438\u043c\u0435\u0435\u0442 \u043f\u0440\u0438\u043e\u0440\u0438\u0442\u0435\u0442.'
+  };
+  document.addEventListener('DOMContentLoaded',function(){
+    var head=document.querySelector('header .wrap')||document.querySelector('header');
+    if(head){
+      var sel=document.createElement('select');sel.id='bmLang';
+      sel.style.cssText='margin-left:14px;background:transparent;border:1px solid #E3DDD0;border-radius:999px;padding:5px 8px;font-family:inherit;font-size:.74rem;font-weight:600;color:inherit;cursor:pointer';
+      ['en','fr','de','it','es','ru'].forEach(function(c){var o=document.createElement('option');o.value=c;o.textContent=c.toUpperCase();if(c===LANG)o.selected=true;sel.appendChild(o);});
+      sel.addEventListener('change',function(){
+        try{sessionStorage.setItem('bm_lang',sel.value);if(prefsOk())localStorage.setItem('bm_lang',sel.value);else localStorage.removeItem('bm_lang');}catch(e){}
+        location.reload();
+      });
+      head.appendChild(sel);
+    }
+    if(LANG!=='en'&&NOTE[LANG]){
+      var n=document.createElement('div');
+      n.style.cssText='max-width:880px;margin:18px auto 28px;padding:14px 20px;background:#FBFAF6;border:1px solid #E3DDD0;border-left:3px solid #A07C3B;border-radius:10px;font-size:.92rem;line-height:1.6;color:#4A5568';
+      n.textContent=NOTE[LANG];
+      var main=document.querySelector('main')||document.body;
+      main.insertBefore(n,main.firstChild);
+    }
+    document.documentElement.lang=LANG;
+  });
+})();
+</script>
 </body>
 </html>
