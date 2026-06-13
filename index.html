@@ -989,6 +989,8 @@ window.trW=function(s){if(BM_LANG==='en'||!s)return s;var w=BM_I18N[BM_LANG].w||
     }
     window.__bmrPicks={};
     (data.picks||[]).forEach(function(p){if(p&&p.id)window.__bmrPicks[p.id]=p.reason||'';});
+    window.__bmrEcon={};
+    (data.yachts||[]).forEach(function(y){if(y&&y.name)window.__bmrEcon[y.name]={c:y.agency_commission||'',l:y.list_price||''};});
     if(data.picks&&data.picks.length){
       var rank={};data.picks.forEach(function(p,i){if(p&&p.id)rank[p.id]=i;});
       data.yachts.sort(function(x,z){
@@ -1013,7 +1015,7 @@ window.trW=function(s){if(BM_LANG==='en'||!s)return s;var w=BM_I18N[BM_LANG].w||
         +'<div class="bmr-specs">'+(y.kind==='hotel'?esc(y.guests+' '+t('guests')+' · '+y.nights+' '+t('nights')):esc(y.guests+' '+t('guests')+' · '+y.cabins+' '+t('cabins')+' · '+y.crew+' '+t('crew')))+'</div>'
         +(reason?('<p class="bmr-reason">'+esc(reason)+'</p>'):'')
         +'<div class="bmr-foot"><div class="bmr-price">'+t('from')+' <b>'+esc(price)+'</b> '+(y.kind==='hotel'?t('night'):t('week'))+'</div>'
-        +'<button class="bmr-cta" data-yacht="'+esc(y.name)+'" data-price="'+esc(y.price||'')+'" data-tier="'+esc(y.tier||'')+'">'+(req?t('request'):t('enquire'))+'</button></div></div></div>';
+        +'<button class="bmr-cta" data-yacht="'+esc(y.name)+'" data-price="'+esc(y.price||'')+'" data-tier="'+esc(y.tier||'')+'" data-comm="'+esc(String(y.agency_commission||''))+'" data-list="'+esc(String(y.list_price||''))+'">'+(req?t('request'):t('enquire'))+'</button></div></div></div>';
     }).join('');
     wrap.innerHTML='<div class="bmr-brief"><p class="eyebrow">'+t('curated')+'</p><p class="q">'+esc(q)+'</p></div>'
       +noteHtml(data)
@@ -1022,7 +1024,7 @@ window.trW=function(s){if(BM_LANG==='en'||!s)return s;var w=BM_I18N[BM_LANG].w||
       +((data.__hotel&&data.yachts.length>3?(data.yachts.length-3):0)?('<div style="text-align:center;margin-top:26px"><button class="bmr-moreBtn" id="bmrMore">'+t('more')+' ('+(data.__hotel&&data.yachts.length>3?(data.yachts.length-3):0)+')</button></div>'):'')
       +elevHtml(data)
       +'<p class="bmr-note">'+(data.source==='live'?(data.__hotel?t('noteH'):t('noteLive')):t('noteSample'))+'</p>'+CONCF();
-    wrap.querySelectorAll('.bmr-cta').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();openEnquiry(b.dataset.yacht,b.dataset.tier,q,undefined,b.dataset.price);}));
+    wrap.querySelectorAll('.bmr-cta').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();openEnquiry(b.dataset.yacht,b.dataset.tier,q,undefined,b.dataset.price,b.dataset.comm,b.dataset.list);}));
     wrap.querySelectorAll('.bmr-card[data-yid]').forEach(c=>c.addEventListener('click',()=>openYachtDetail(c.dataset.yid,q,c.dataset.price)));
     wireExtras(q,data);
   }
@@ -1251,9 +1253,9 @@ window.trW=function(s){if(BM_LANG==='en'||!s)return s;var w=BM_I18N[BM_LANG].w||
     modal.querySelector('#bmeClose').addEventListener('click',()=>modal.classList.remove('on'));
     modal.addEventListener('click',e=>{if(e.target===modal)modal.classList.remove('on');});
   }
-  function openEnquiry(yacht,tier,briefText,route,price){
+  function openEnquiry(yacht,tier,briefText,route,price,comm,list){
     ensureModal();
-    ctx={yacht:yacht||'',tier:tier||'',brief:briefText||'',route:route||'',price:price||''};
+    ctx={yacht:yacht||'',tier:tier||'',brief:briefText||'',route:route||'',price:price||'',comm:comm||'',list:list||''};
     const req=(tier==='superyacht');
     const jet=(tier==='jet');
     const exp=(tier==='experience');
@@ -1288,7 +1290,7 @@ window.trW=function(s){if(BM_LANG==='en'||!s)return s;var w=BM_I18N[BM_LANG].w||
     try{
       const res=await fetch('/api/enquiry',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
         email:email,firstname:first,lastname:last,phone:phone,
-        yachts:ctx.yacht,tier:ctx.tier,tier_interest:ctx.tier,brief:ctx.brief,destination:ctx.route||undefined,client_price:ctx.price||undefined,
+        yachts:ctx.yacht,tier:ctx.tier,tier_interest:ctx.tier,brief:ctx.brief,destination:ctx.route||undefined,client_price:ctx.price||undefined,agency_commission:ctx.comm||undefined,list_price:ctx.list||undefined,
         partner_services:[c.querySelector('#bmePartFlowers').checked?'Flowers by Lotus Boutique':null,c.querySelector('#bmePartPhoto').checked?'Private photography':null].filter(Boolean).join(', ')||undefined,
         lang:(window.__bmMeta&&window.__bmMeta.lang)||BM_LANG,brief_en:(window.__bmMeta&&window.__bmMeta.brief_en)||ctx.brief,source:'ai_concierge',ref:(window.bmGetRef?window.bmGetRef():'')
       })});
