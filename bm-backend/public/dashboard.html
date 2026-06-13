@@ -61,6 +61,9 @@ a.link:hover{text-decoration:underline}
 .activate .err{color:var(--red);font-size:.82rem}
 .linkbox{margin-top:10px;background:var(--ivory);border:1px solid var(--line);border-radius:8px;padding:9px 12px;font-size:.82rem;display:none;align-items:center;gap:10px;justify-content:space-between}
 .linkbox button{background:var(--gold);color:#fff;border:none;border-radius:6px;padding:6px 12px;font-size:.72rem;cursor:pointer;font-family:inherit}
+.declinebtn{background:#fff;border:1px solid var(--line);color:var(--ink-soft);border-radius:999px;padding:10px 18px;font-size:.78rem;font-weight:600;cursor:pointer;font-family:inherit}
+.declinebtn:hover{border-color:var(--red);color:var(--red)}
+.declinebox{display:none;margin-top:12px;background:var(--ivory);border:1px solid var(--line);border-radius:10px;padding:14px}
 tr.amb-row{cursor:pointer}
 tr.amb-row:hover td{background:#FCFBF7}
 tr.amb-row td:first-child::before{content:"\203A";display:inline-block;margin-right:8px;color:var(--gold);font-weight:700;transition:transform .15s}
@@ -488,6 +491,8 @@ function render(d){
     [false,true,true,true]) : empty('Nothing closed yet. Your first won deal starts this table.');
 
   var apps=d.applicants||[];
+  window.BM_APPS={};
+  apps.forEach(function(a){window.BM_APPS[a.contactId]=a;});
   document.getElementById('apps').innerHTML = apps.length ? apps.map(function(a){
     var sug=suggestCode(a.name||a.email);
     var meta=[a.email, a.city, a.country, a.phone].filter(Boolean).map(esc).join(' \u00b7 ');
@@ -497,7 +502,9 @@ function render(d){
       (a.about?'<div class="about">'+esc(a.about)+'</div>':'')+
       '<div class="activate"><input value="'+sug+'" id="code-'+a.contactId+'" maxlength="20" aria-label="Referral code">'+
         '<button onclick="activate(\''+esc(a.email)+'\',\''+a.contactId+'\')">Activate ambassador</button>'+
+        '<button class="declinebtn" onclick="declineApplicant(this,\''+a.contactId+'\')">Decline</button>'+
         '<span id="msg-'+a.contactId+'"></span></div>'+
+      '<div class="declinebox" id="decline-'+a.contactId+'"></div>'+
       '<div class="linkbox" id="link-'+a.contactId+'"></div></div>';
   }).join('') : empty('No applications waiting. New ones appear here the moment someone applies on ambassador.bluemeridian.ai.');
 
@@ -597,6 +604,45 @@ function activate(email,id){
   });
 }
 function suggestCode(name){var first=(name||'').split(' ')[0].replace(/[^A-Za-z]/g,'').toUpperCase().slice(0,8)||'AMB';return first+String(Math.floor(10+Math.random()*90));}
+
+function declineApplicant(btn,id){
+  var a=(window.BM_APPS||{})[id]; if(!a)return;
+  if(!confirm('Decline '+(a.name||a.email)+'?\n\nThey\u2019ll be removed from your pending list, and a polite decline note will be ready for you to send.')) return;
+  btn.disabled=true;btn.textContent='\u2026';
+  api('/api/admin/decline',{method:'POST',body:JSON.stringify({email:a.email})}).then(function(r){
+    if(!r.ok){alert(r.error||'Could not decline.');btn.disabled=false;btn.textContent='Decline';return;}
+    showDeclineDraft(id,a);
+  }).catch(function(){alert('Could not reach the server.');btn.disabled=false;btn.textContent='Decline';});
+}
+function buildDeclineEmail(a){
+  var first=((a.name||'').trim().split(' ')[0])||'there';
+  return {
+    subject:'Your Blue Meridian ambassador application',
+    body:'Dear '+first+',\n\n'+
+      'Thank you for your interest in joining the Blue Meridian ambassador programme, and for taking the time to apply.\n\n'+
+      'After careful consideration, we\u2019re not able to move forward with your application at this time. Please don\u2019t take this as a reflection of you \u2014 our network is small and highly selective, and our needs shift as we grow.\n\n'+
+      'We\u2019d be glad to revisit this in the future, and we truly appreciate your interest in Blue Meridian.\n\n'+
+      'With warm regards,\nThe Blue Meridian Team'
+  };
+}
+function showDeclineDraft(id,a){
+  var e=buildDeclineEmail(a);
+  var mailto='mailto:'+encodeURIComponent(a.email)+'?subject='+encodeURIComponent(e.subject)+'&body='+encodeURIComponent(e.body);
+  var box=document.getElementById('decline-'+id);
+  box.style.display='block';
+  box.innerHTML='<div class="muted" style="margin-bottom:8px">Declined \u2713 \u2014 removed from your pending list. Here\u2019s a note ready to send '+esc(a.name||a.email)+':</div>'+
+    '<div style="font-size:.82rem;margin-bottom:2px"><b>To:</b> '+esc(a.email)+'</div>'+
+    '<div style="font-size:.82rem;margin-bottom:8px"><b>Subject:</b> '+esc(e.subject)+'</div>'+
+    '<div id="declinemsg-'+id+'" style="white-space:pre-wrap;background:#fff;border:1px solid var(--line);border-radius:8px;padding:12px;font-size:.85rem;margin-bottom:10px">'+esc(e.body)+'</div>'+
+    '<a class="act" href="'+mailto+'">Open in email app</a>'+
+    '<button class="act" onclick="copyDecline(\''+id+'\',this)">Copy message</button>'+
+    '<button class="act" onclick="load()">Done</button>';
+  var row=box.previousElementSibling; if(row&&row.classList.contains('activate'))row.style.display='none';
+}
+function copyDecline(id,btn){
+  var t=document.getElementById('declinemsg-'+id).textContent;
+  navigator.clipboard.writeText(t).then(function(){btn.textContent='Copied';});
+}
 </script>
 </body>
 </html>

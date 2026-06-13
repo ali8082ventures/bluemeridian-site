@@ -428,6 +428,24 @@ app.post('/api/admin/activate', requireAdmin, async (req, res) => {
   }
 });
 
+/* ----- Decline an applicant: mark declined so they drop off the pending list ----- */
+app.post('/api/admin/decline', requireAdmin, async (req, res) => {
+  try {
+    const email = clean(req.body?.email, 200).toLowerCase();
+    if (!validEmail(email)) return res.status(400).json({ ok: false, error: 'Need a valid email.' });
+    const contact = await findContactByEmail(email);
+    if (!contact) return res.status(404).json({ ok: false, error: 'No contact with that email.' });
+    const r = await hs(`/crm/v3/objects/contacts/${contact.id}`, 'PATCH', {
+      properties: { bm_ambassador_status: 'declined' },
+    });
+    if (r.status >= 300) return res.status(502).json({ ok: false, error: 'HubSpot update failed.' });
+    res.json({ ok: true });
+  } catch (e) {
+    console.error('decline error', e.message);
+    res.status(500).json({ ok: false, error: 'Something went wrong.' });
+  }
+});
+
 /* ----- Enquiry housekeeping: archive / restore / refresh freshness ----- */
 async function patchDeal(id, properties, res, label) {
   const dealId = String(id || '').replace(/[^0-9]/g, '');
