@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your Referrals · Blue Meridian</title>
+<link rel="icon" type="image/svg+xml" href="/bluemeridian-favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500&family=Hanken+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#16243A; --ink-soft:#5A6678; --paper:#F4F2EB; --card:#FFFFFF;
+    --line:#E3DDD0; --gold:#A07C3B; --gold-soft:#C3A45F;
+    --cool:#5B7A9A; --warm:#B5713A; --hot:#A0432B;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--paper);color:var(--ink);font-family:'Hanken Grotesk',system-ui,sans-serif;line-height:1.5;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:920px;margin:0 auto;padding:0 24px}
+  header{border-bottom:1px solid var(--line);padding:22px 0}
+  .logo{display:flex;align-items:center;gap:11px;color:var(--ink);text-decoration:none}
+  .logo svg{display:block}
+  .logo span{font-family:'Fraunces',serif;font-weight:400;letter-spacing:.22em;font-size:.95rem}
+  /* ---- shared ---- */
+  .eyebrow{font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);font-weight:600}
+  h1{font-family:'Fraunces',serif;font-weight:300;font-size:2.3rem;line-height:1.1;margin:8px 0 0}
+  .sub{color:var(--ink-soft);margin-top:10px;font-size:1rem}
+  .btn{background:var(--ink);color:#fff;border:none;border-radius:999px;padding:14px 30px;font-family:inherit;font-size:.86rem;font-weight:600;letter-spacing:.04em;cursor:pointer}
+  .btn:hover{background:#1f3050}
+  .btn:disabled{opacity:.5;cursor:default}
+  input[type=email]{width:100%;padding:14px 16px;border:1px solid var(--line);border-radius:12px;font-family:inherit;font-size:1rem;background:var(--card);color:var(--ink);margin:18px 0}
+  input[type=email]:focus{outline:none;border-color:var(--gold)}
+  /* ---- views ---- */
+  .view{display:none;padding:64px 0}
+  .view.on{display:block}
+  #login .box,#sent .box{max-width:440px;margin:0 auto;text-align:center}
+  #sent .box p{color:var(--ink-soft);margin-top:14px}
+  .note{font-size:.82rem;color:var(--ink-soft);margin-top:20px}
+  /* ---- dashboard ---- */
+  .greet{margin-bottom:8px}
+  .code-pill{display:inline-block;margin-top:14px;background:var(--ink);color:#fff;font-family:'Fraunces',serif;letter-spacing:.12em;padding:8px 18px;border-radius:999px;font-size:1rem}
+  .code-pill .lbl{font-family:'Hanken Grotesk';font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--gold-soft);display:block;margin-bottom:1px}
+  .share{margin-top:16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .share input{flex:1;min-width:240px;padding:11px 14px;border:1px solid var(--line);border-radius:10px;font-family:inherit;font-size:.86rem;color:var(--ink-soft);background:var(--card)}
+  .share button{background:none;border:1px solid var(--gold);color:var(--gold);border-radius:10px;padding:11px 18px;font-family:inherit;font-weight:600;font-size:.82rem;cursor:pointer;white-space:nowrap}
+  .share button:hover{background:var(--gold);color:#fff}
+  .tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:34px 0}
+  .tile{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px}
+  .tile .n{font-family:'Fraunces',serif;font-weight:400;font-size:2rem;line-height:1}
+  .tile .l{font-size:.74rem;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);margin-top:8px}
+  .tile.earn .n{color:var(--gold)}
+  h2{font-family:'Fraunces',serif;font-weight:400;font-size:1.3rem;margin:36px 0 4px}
+  .h2sub{color:var(--ink-soft);font-size:.86rem;margin-bottom:18px}
+  /* deal list */
+  .deal{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px;display:flex;align-items:center;gap:18px;margin-bottom:12px}
+  .heat{width:6px;align-self:stretch;border-radius:3px;flex-shrink:0}
+  .deal .who{font-weight:600;font-size:1rem}
+  .deal .dest{color:var(--ink-soft);font-size:.84rem;margin-top:2px}
+  .deal .mid{flex:1}
+  .deal .age{font-size:.8rem;color:var(--ink-soft);text-align:right;min-width:90px}
+  .status{display:inline-block;padding:6px 13px;border-radius:999px;font-size:.74rem;font-weight:600;letter-spacing:.03em;white-space:nowrap}
+  .s-new{background:#EEF1F5;color:#5B7A9A}
+  .s-pending_contract{background:#F3EEE2;color:#9A7B3A}
+  .s-contract_signed{background:#E8EFE6;color:#5B7A4A}
+  .s-trip_upcoming{background:#E6EDF2;color:#3C6080}
+  .s-trip_complete{background:#16243A;color:#fff}
+  .s-cancelled{background:#F0E8E6;color:#A0432B}
+  .commission{font-family:'Fraunces',serif;font-size:1.05rem;min-width:90px;text-align:right}
+  .commission .pend{color:var(--ink-soft);font-size:.78rem;font-family:'Hanken Grotesk'}
+  .empty{background:var(--card);border:1px dashed var(--line);border-radius:14px;padding:40px;text-align:center;color:var(--ink-soft)}
+  .legend{display:flex;gap:18px;align-items:center;margin:14px 0 0;font-size:.76rem;color:var(--ink-soft);flex-wrap:wrap}
+  .legend .k{display:flex;align-items:center;gap:6px}
+  .legend .sw{width:12px;height:12px;border-radius:3px}
+  .err{color:var(--hot);font-size:.86rem;margin-top:12px}
+  .signout{float:right;background:none;border:none;color:var(--ink-soft);font-family:inherit;font-size:.82rem;cursor:pointer;text-decoration:underline;padding:8px 0}
+  @media(max-width:640px){
+    .tiles{grid-template-columns:repeat(2,1fr)}
+    h1{font-size:1.8rem}
+    .deal{flex-wrap:wrap;gap:10px}
+    .deal .age{text-align:left;min-width:0}
+    .commission{text-align:left;min-width:0}
+  }
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <a class="logo" href="https://bluemeridian.ai">
+    <svg width="24" height="24" viewBox="0 0 120 120" fill="none"><g stroke="currentColor" stroke-width="3"><circle cx="60" cy="60" r="50"/><line x1="10" y1="60" x2="110" y2="60"/><ellipse cx="60" cy="60" rx="19" ry="50"/></g><line x1="60" y1="5" x2="60" y2="115" stroke="#A07C3B" stroke-width="3.4"/></svg>
+    <span>BLUE MERIDIAN</span>
+  </a>
+</div></header>
+
+<!-- LOGIN -->
+<section class="view" id="login"><div class="wrap"><div class="box">
+  <p class="eyebrow">Ambassador access</p>
+  <h1>Your referrals</h1>
+  <p class="sub">Enter your email and we'll send you a secure sign-in link. No password needed.</p>
+  <input type="email" id="email" placeholder="you@example.com" autocomplete="email">
+  <button class="btn" id="sendBtn" style="width:100%">Send my sign-in link</button>
+  <p class="err" id="loginErr" style="display:none"></p>
+  <p class="note">Only registered Blue Meridian ambassadors can sign in here.</p>
+</div></div></section>
+
+<!-- SENT -->
+<section class="view" id="sent"><div class="wrap"><div class="box">
+  <p class="eyebrow">Check your inbox</p>
+  <h1>Link sent</h1>
+  <p>If that email belongs to an ambassador, a secure sign-in link is on its way. It's valid for 30 minutes.</p>
+  <p class="note">You can close this tab and open the link from your email.</p>
+</div></div></section>
+
+<!-- DASHBOARD -->
+<section class="view" id="dash"><div class="wrap">
+  <button class="signout" id="signout">Sign out</button>
+  <p class="eyebrow">Ambassador</p>
+  <h1 class="greet" id="greet">Welcome</h1>
+  <div class="code-pill"><span class="lbl">Your referral code</span><span id="myCode">—</span></div>
+  <div class="share">
+    <input id="myLink" readonly>
+    <button id="copyLink">Copy link</button>
+  </div>
+
+  <div class="tiles">
+    <div class="tile"><div class="n" id="tReferrals">0</div><div class="l">Referrals</div></div>
+    <div class="tile"><div class="n" id="tOpen">0</div><div class="l">In progress</div></div>
+    <div class="tile"><div class="n" id="tDone">0</div><div class="l">Completed</div></div>
+    <div class="tile earn"><div class="n" id="tEarned">£0</div><div class="l">Earned</div></div>
+  </div>
+
+  <h2>Your referrals</h2>
+  <p class="h2sub">Every enquiry that came through your link. The bar shows how long it's been moving.</p>
+  <div id="dealList"></div>
+  <div class="legend">
+    <span class="k"><span class="sw" style="background:var(--cool)"></span> Fresh</span>
+    <span class="k"><span class="sw" style="background:var(--warm)"></span> Aging</span>
+    <span class="k"><span class="sw" style="background:var(--hot)"></span> Needs a nudge</span>
+  </div>
+</div></section>
+
+<script>
+var API='https://api.bluemeridian.ai';
+function show(id){document.querySelectorAll('.view').forEach(function(v){v.classList.remove('on');});document.getElementById(id).classList.add('on');}
+function getSession(){try{return localStorage.getItem('bm_amb_session')||'';}catch(e){return '';}}
+function setSession(t){try{t?localStorage.setItem('bm_amb_session',t):localStorage.removeItem('bm_amb_session');}catch(e){}}
+
+// --- login ---
+document.getElementById('sendBtn').addEventListener('click',async function(){
+  var email=document.getElementById('email').value.trim();
+  var err=document.getElementById('loginErr');err.style.display='none';
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){err.textContent='Please enter a valid email address.';err.style.display='block';return;}
+  this.disabled=true;this.textContent='Sending…';
+  try{
+    await fetch(API+'/api/ambassador/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:email})});
+    show('sent');
+  }catch(e){err.textContent='Something went wrong. Please try again.';err.style.display='block';this.disabled=false;this.textContent='Send my sign-in link';}
+});
+document.getElementById('email').addEventListener('keydown',function(e){if(e.key==='Enter')document.getElementById('sendBtn').click();});
+
+// --- magic link redemption (token in URL hash) ---
+async function tryRedeem(){
+  var m=location.hash.match(/token=([^&]+)/);
+  if(!m)return false;
+  var token=decodeURIComponent(m[1]);
+  history.replaceState(null,'',location.pathname);
+  try{
+    var r=await fetch(API+'/api/ambassador/verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:token})});
+    var d=await r.json();
+    if(d.ok&&d.session){setSession(d.session);return true;}
+  }catch(e){}
+  return false;
+}
+
+// --- dashboard ---
+function heatColor(age){
+  // 0d cool -> 30d+ hot
+  if(age<=7)return 'var(--cool)';
+  if(age<=21)return 'var(--warm)';
+  return 'var(--hot)';
+}
+function money(n){return '£'+(n||0).toLocaleString('en-GB');}
+async function loadDash(){
+  var s=getSession();if(!s){show('login');return;}
+  try{
+    var r=await fetch(API+'/api/ambassador/me',{headers:{'Authorization':'Bearer '+s}});
+    if(r.status===401){setSession('');show('login');return;}
+    var d=await r.json();
+    if(!d.ok){show('login');return;}
+    document.getElementById('greet').textContent='Welcome'+(d.ambassador.firstName?(', '+d.ambassador.firstName):'');
+    document.getElementById('myCode').textContent=d.ambassador.code;
+    document.getElementById('myLink').value='https://bluemeridian.ai/?ref='+d.ambassador.code;
+    document.getElementById('tReferrals').textContent=d.summary.referrals;
+    document.getElementById('tOpen').textContent=d.summary.open;
+    document.getElementById('tDone').textContent=d.summary.completed;
+    document.getElementById('tEarned').textContent=money(d.summary.earned);
+    var list=document.getElementById('dealList');
+    if(!d.deals.length){
+      list.innerHTML='<div class="empty">No referrals yet. Share your link above — when someone enquires through it, they\'ll appear here.</div>';
+    } else {
+      list.innerHTML=d.deals.map(function(x){
+        var done=x.status==='trip_complete';
+        var cancelled=x.status==='cancelled';
+        var comm=cancelled?'<span class="pend">—</span>':(done?money(x.commission):('<span class="pend">'+money(x.commission)+' pending</span>'));
+        return '<div class="deal">'
+          +'<div class="heat" style="background:'+(cancelled?'var(--line)':(done?'var(--gold-soft)':heatColor(x.ageDays)))+'"></div>'
+          +'<div class="mid"><div class="who">'+escapeHtml(x.clientFirst)+'</div>'+(x.destination?'<div class="dest">'+escapeHtml(x.destination)+'</div>':'')+'</div>'
+          +'<span class="status s-'+x.status+'">'+x.statusLabel+'</span>'
+          +'<div class="age">'+x.ageDays+(x.ageDays===1?' day':' days')+'</div>'
+          +'<div class="commission">'+comm+'</div>'
+        +'</div>';
+      }).join('');
+    }
+    show('dash');
+  }catch(e){show('login');}
+}
+function escapeHtml(s){return String(s||'').replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+
+document.getElementById('copyLink').addEventListener('click',function(){
+  var inp=document.getElementById('myLink');inp.select();
+  navigator.clipboard?navigator.clipboard.writeText(inp.value):document.execCommand('copy');
+  this.textContent='Copied';var b=this;setTimeout(function(){b.textContent='Copy link';},1600);
+});
+document.getElementById('signout').addEventListener('click',function(){setSession('');show('login');});
+
+// --- boot ---
+(async function(){
+  if(await tryRedeem()){await loadDash();return;}
+  if(getSession()){await loadDash();return;}
+  show('login');
+})();
+</script>
+</body>
+</html>
