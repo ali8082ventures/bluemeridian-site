@@ -96,6 +96,7 @@ const contactProps = [
   ]),
   bool('bm_is_ambassador', 'BM — Is an active ambassador'),
   text('bm_ambassador_own_code', 'BM — Ambassador: their own referral code'),
+  text('bm_ambassador_country', 'BM — Ambassador: country (ISO code)'),
   text('bm_ambassador_code', 'BM — Referred by ambassador (code)'),
   text('bm_recruited_by', 'BM — Ambassador recruited by (code)'),
   text('bm_ambassador_social', 'BM — Ambassador: social / website'),

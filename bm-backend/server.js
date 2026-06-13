@@ -108,6 +108,9 @@ app.post('/api/ambassador/apply', async (req, res) => {
       bm_ambassador_social: clean(b.social, 300),
       bm_ambassador_about: clean(b.about, 3000),
     };
+    if (b.phone) properties.phone = clean(b.phone, 40);
+    if (b.countryName) properties.country = clean(b.countryName, 80);
+    if (b.country) properties.bm_ambassador_country = clean(b.country, 2).toUpperCase();
     if (b.recruitedBy) properties.bm_recruited_by = clean(b.recruitedBy, 40).toUpperCase();
 
     const existing = await findContactByEmail(email);
@@ -209,12 +212,12 @@ app.get('/api/admin/summary', requireAdmin, async (req, res) => {
     const ambassadors = await searchAll(
       'contacts',
       [{ propertyName: 'bm_is_ambassador', operator: 'EQ', value: 'true' }],
-      ['firstname', 'lastname', 'email', 'bm_ambassador_own_code', 'bm_recruited_by', 'bm_ambassador_status']
+      ['firstname', 'lastname', 'email', 'phone', 'city', 'country', 'bm_ambassador_country', 'bm_ambassador_own_code', 'bm_recruited_by', 'bm_ambassador_status', 'bm_ambassador_social', 'createdate']
     );
     const applicants = await searchAll(
       'contacts',
       [{ propertyName: 'bm_ambassador_status', operator: 'EQ', value: 'applied' }],
-      ['firstname', 'lastname', 'email', 'city', 'bm_ambassador_social', 'bm_ambassador_about', 'bm_recruited_by', 'createdate']
+      ['firstname', 'lastname', 'email', 'phone', 'city', 'country', 'bm_ambassador_country', 'bm_ambassador_social', 'bm_ambassador_about', 'bm_recruited_by', 'createdate']
     );
 
     const won = deals.filter((d) => (d.properties.dealstage || '').toLowerCase().includes('closedwon'));
@@ -271,6 +274,12 @@ app.get('/api/admin/summary', requireAdmin, async (req, res) => {
         contactId: a.id,
         name: `${p.firstname || ''} ${p.lastname || ''}`.trim() || p.email,
         email: p.email,
+        phone: p.phone || null,
+        city: p.city || null,
+        country: p.country || null,
+        countryCode: (p.bm_ambassador_country || '').toUpperCase() || null,
+        social: p.bm_ambassador_social || null,
+        joined: p.createdate || null,
         code,
         recruitedBy: (p.bm_recruited_by || '').toUpperCase() || null,
         revenue12m, profit12m,
@@ -294,6 +303,33 @@ app.get('/api/admin/summary', requireAdmin, async (req, res) => {
       .filter((d) => !num(d.properties.bm_deal_profit))
       .map((d) => ({ id: d.id, name: d.properties.dealname, amount: num(d.properties.amount), closedate: d.properties.closedate }));
 
+    /* ----- Open enquiries (anything not closed), for drill-down ----- */
+    const openEnquiries = deals
+      .filter((d) => !/closed/.test((d.properties.dealstage || '').toLowerCase()))
+      .map((d) => ({
+        id: d.id,
+        name: d.properties.dealname || '(unnamed enquiry)',
+        destination: d.properties.bm_destination || null,
+        amount: num(d.properties.amount) || null,
+        stage: d.properties.dealstage || null,
+        source: d.properties.bm_ambassador_code ? `Ambassador (${d.properties.bm_ambassador_code})` : 'Direct / website',
+        created: d.properties.createdate || null,
+        hubspotUrl: `https://app.hubspot.com/contacts/objects/0-3/${d.id}`,
+      }))
+      .sort((a, b) => new Date(b.created || 0) - new Date(a.created || 0));
+
+    /* ----- Geographic distribution (by ISO alpha-2 country) ----- */
+    const byCountry = {};
+    const addGeo = (code, name, key) => {
+      const c = (code || '').toUpperCase();
+      if (!c) return;
+      byCountry[c] = byCountry[c] || { code: c, name: name || c, active: 0, pending: 0 };
+      byCountry[c][key] += 1;
+      if (name) byCountry[c].name = name;
+    };
+    for (const a of ambRows) addGeo(a.countryCode, a.country, 'active');
+    for (const a of applicants) addGeo((a.properties.bm_ambassador_country || ''), a.properties.country, 'pending');
+
     res.json({
       ok: true,
       generatedAt: new Date().toISOString(),
@@ -303,12 +339,17 @@ app.get('/api/admin/summary', requireAdmin, async (req, res) => {
         contactId: a.id,
         name: `${a.properties.firstname || ''} ${a.properties.lastname || ''}`.trim(),
         email: a.properties.email,
-        city: a.properties.city,
+        phone: a.properties.phone || null,
+        city: a.properties.city || null,
+        country: a.properties.country || null,
+        countryCode: (a.properties.bm_ambassador_country || '').toUpperCase() || null,
         social: a.properties.bm_ambassador_social,
         about: a.properties.bm_ambassador_about,
         recruitedBy: a.properties.bm_recruited_by || null,
         applied: a.properties.createdate,
       })),
+      openEnquiries,
+      byCountry,
       missingProfit,
       rules: { tiers: TIERS, overrideRate: OVERRIDE_RATE },
     });
