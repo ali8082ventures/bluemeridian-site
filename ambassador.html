@@ -543,7 +543,17 @@ footer{background:var(--navy-panel);color:rgba(255,255,255,.65);padding:54px 0 4
   [rev,margin,subrev].forEach(function(el){el.addEventListener('input',update);});
   update();
 
-  // mock application form
+  // ----- referral capture: ?ref=CODE remembers who recruited this applicant -----
+  function getRef(){
+    var m=location.search.match(/[?&]ref=([A-Za-z0-9_-]{2,30})/);
+    if(m){document.cookie='bm_ref='+m[1].toUpperCase()+';max-age='+(90*24*3600)+';path=/;SameSite=Lax';return m[1].toUpperCase();}
+    var c=document.cookie.match(/(?:^|;\s*)bm_ref=([A-Z0-9_-]+)/);
+    return c?c[1]:'';
+  }
+  var REF=getRef();
+
+  // ----- real application submission -----
+  var API='https://api.bluemeridian.ai';
   var form=document.getElementById('appForm');
   form.addEventListener('submit',function(e){
     e.preventDefault();
@@ -554,8 +564,32 @@ footer{background:var(--navy-panel);color:rgba(255,255,255,.65);padding:54px 0 4
       else{el.style.borderColor='';}
     });
     if(!ok)return;
-    form.style.display='none';
-    document.getElementById('formSuccess').style.display='block';
+    var btn=form.querySelector('button[type=submit]');
+    btn.disabled=true;btn.textContent='Sending\u2026';
+    var payload={
+      firstName:document.getElementById('fname').value.trim(),
+      lastName:document.getElementById('lname').value.trim(),
+      email:document.getElementById('email').value.trim(),
+      city:document.getElementById('city').value.trim(),
+      social:document.getElementById('social').value.trim(),
+      about:document.getElementById('about').value.trim()
+    };
+    if(REF)payload.recruitedBy=REF;
+    fetch(API+'/api/ambassador/apply',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(payload)
+    }).then(function(r){return r.json();}).then(function(d){
+      if(d.ok){
+        form.style.display='none';
+        document.getElementById('formSuccess').style.display='block';
+      }else{throw new Error(d.error||'failed');}
+    }).catch(function(){
+      btn.disabled=false;btn.textContent='Submit application';
+      var n=document.querySelector('.form-note');
+      n.style.color='#B0483F';
+      n.textContent="We couldn't send your application just now \u2014 please try again in a moment, or email partnerships@bluemeridian.ai.";
+    });
   });
 })();
 </script>
