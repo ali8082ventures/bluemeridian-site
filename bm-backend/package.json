@@ -1,0 +1,13 @@
+{
+  "name": "bm-backend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Blue Meridian backend: ambassador programme, enquiry capture, admin dashboard",
+  "scripts": {
+    "start": "node --env-file=.env server.js",
+    "setup-hubspot": "node --env-file=.env setup-hubspot.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}

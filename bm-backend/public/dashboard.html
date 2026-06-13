@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>Blue Meridian — Admin Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--ivory:#FBFAF6;--ink:#1F2D45;--ink-soft:#5A6477;--gold:#B08D3F;--gold-soft:#C9A85C;--line:#E3DFD3;--navy:#16233A;--green:#2E7D5B;--red:#B0483F}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:var(--ivory);color:var(--ink);line-height:1.5;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:'Fraunces',serif;font-weight:400}
+.wrap{max-width:1180px;margin:0 auto;padding:0 22px}
+header{background:var(--navy);color:#fff;padding:18px 0}
+header .wrap{display:flex;justify-content:space-between;align-items:center;gap:16px}
+.brand{font-family:'Fraunces',serif;font-size:1.1rem}
+.brand span{color:var(--gold-soft);font-size:.62rem;letter-spacing:.28em;text-transform:uppercase;margin-left:10px}
+#refreshBtn{background:transparent;border:1px solid rgba(255,255,255,.4);color:#fff;border-radius:999px;padding:8px 18px;font-size:.78rem;font-weight:600;cursor:pointer;font-family:inherit}
+#refreshBtn:hover{border-color:#fff}
+.muted{color:var(--ink-soft);font-size:.84rem}
+section{padding:34px 0 4px}
+h2{font-size:1.35rem;margin-bottom:16px}
+/* login */
+#login{max-width:380px;margin:90px auto;background:#fff;border:1px solid var(--line);border-radius:16px;padding:36px;text-align:center}
+#login h1{font-size:1.5rem;margin-bottom:6px}
+#login p{color:var(--ink-soft);font-size:.88rem;margin-bottom:22px}
+#login input{width:100%;border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-family:inherit;font-size:.95rem;margin-bottom:14px;background:var(--ivory)}
+#login button{width:100%;background:var(--gold);color:#fff;border:none;border-radius:999px;padding:13px;font-weight:600;font-size:.88rem;cursor:pointer;font-family:inherit}
+#loginErr{color:var(--red);font-size:.8rem;margin-top:12px;display:none}
+/* cards */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px}
+.card .v{font-family:'Fraunces',serif;font-size:1.7rem}
+.card .l{font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);margin-top:2px}
+/* tables */
+table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;font-size:.86rem}
+th,td{text-align:left;padding:11px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:var(--navy);color:#fff;font-weight:500;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase}
+tr:last-child td{border-bottom:none}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+.pill{display:inline-block;border-radius:999px;padding:2px 11px;font-size:.7rem;font-weight:600;letter-spacing:.05em}
+.pill.gold{background:var(--gold);color:#fff}
+.pill.soft{background:var(--ivory);border:1px solid var(--line);color:var(--ink-soft)}
+.bar{height:8px;border-radius:6px;background:var(--gold);min-width:2px}
+.warn{background:#FBF3E4;border:1px solid #E8D9B0;border-radius:12px;padding:14px 18px;font-size:.85rem;margin-top:14px}
+.empty{background:#fff;border:1px dashed var(--line);border-radius:14px;padding:26px;text-align:center;color:var(--ink-soft);font-size:.88rem}
+/* applications */
+.app-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:14px}
+.app-card .top{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;align-items:baseline}
+.app-card .name{font-weight:600}
+.app-card .about{color:var(--ink-soft);font-size:.86rem;margin:10px 0 14px;white-space:pre-wrap}
+.activate{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.activate input{border:1px solid var(--line);border-radius:8px;padding:9px 12px;font-family:inherit;font-size:.85rem;text-transform:uppercase;width:160px;background:var(--ivory)}
+.activate button{background:var(--ink);color:#fff;border:none;border-radius:999px;padding:10px 20px;font-size:.78rem;font-weight:600;cursor:pointer;font-family:inherit}
+.activate button:hover{background:#2b3c5c}
+.activate .ok{color:var(--green);font-size:.82rem;font-weight:600}
+.activate .err{color:var(--red);font-size:.82rem}
+.linkbox{margin-top:10px;background:var(--ivory);border:1px solid var(--line);border-radius:8px;padding:9px 12px;font-size:.82rem;display:none;align-items:center;gap:10px;justify-content:space-between}
+.linkbox button{background:var(--gold);color:#fff;border:none;border-radius:6px;padding:6px 12px;font-size:.72rem;cursor:pointer;font-family:inherit}
+footer{padding:40px 0;color:var(--ink-soft);font-size:.76rem;text-align:center}
+@media(max-width:760px){th,td{padding:9px 8px;font-size:.78rem}}
+</style>
+</head>
+<body>
+
+<div id="login">
+  <h1>Blue Meridian</h1>
+  <p>Admin dashboard. Enter your admin key to continue.</p>
+  <input id="keyInput" type="password" placeholder="Admin key" autocomplete="current-password">
+  <button id="loginBtn">Open dashboard</button>
+  <p id="loginErr">That key wasn't accepted — check it and try again.</p>
+</div>
+
+<div id="dash" style="display:none">
+  <header>
+    <div class="wrap">
+      <div class="brand">Blue Meridian<span>Admin</span></div>
+      <div style="display:flex;gap:12px;align-items:center">
+        <span class="muted" id="stamp" style="color:rgba(255,255,255,.55)"></span>
+        <button id="refreshBtn">Refresh</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <section>
+      <h2>Last 12 months</h2>
+      <div class="cards" id="cards"></div>
+      <div class="warn" id="profitWarn" style="display:none"></div>
+    </section>
+
+    <section>
+      <h2>Where sales come from</h2>
+      <div id="sourceTbl"></div>
+    </section>
+
+    <section>
+      <h2>Month by month</h2>
+      <div id="monthTbl"></div>
+    </section>
+
+    <section>
+      <h2>Pending applications</h2>
+      <div id="apps"></div>
+    </section>
+
+    <section>
+      <h2>Ambassadors</h2>
+      <div id="ambTbl"></div>
+      <p class="muted" style="margin-top:12px">Commission = tier rate × profit on their closed-won deals (rolling 12 months). Override = 1% of profit generated by ambassadors they recruited. Record profit on each deal in HubSpot (field: <b>BM — Blue Meridian profit on this deal</b>) for these figures to be complete.</p>
+    </section>
+  </div>
+
+  <footer>Blue Meridian Technologies Ltd — internal use only.</footer>
+</div>
+
+<script>
+var KEY='';
+var fmt=function(n){return '€'+Math.round(n||0).toLocaleString('en-GB');};
+var pct=function(r){return (r*100).toLocaleString()+'%';};
+
+function api(path, opts){
+  opts=opts||{};
+  opts.headers=Object.assign({'Content-Type':'application/json','x-admin-key':KEY},opts.headers||{});
+  return fetch(path,opts).then(function(r){return r.json().then(function(j){j._status=r.status;return j;});});
+}
+
+document.getElementById('loginBtn').addEventListener('click',tryLogin);
+document.getElementById('keyInput').addEventListener('keydown',function(e){if(e.key==='Enter')tryLogin();});
+document.getElementById('refreshBtn').addEventListener('click',load);
+
+function tryLogin(){
+  KEY=document.getElementById('keyInput').value.trim();
+  if(!KEY)return;
+  load(true);
+}
+
+function load(fromLogin){
+  api('/api/admin/summary').then(function(d){
+    if(d._status===401){
+      if(fromLogin)document.getElementById('loginErr').style.display='block';
+      return;
+    }
+    if(!d.ok){alert(d.error||'Could not load data');return;}
+    sessionStorage.setItem('bmKey',KEY);
+    document.getElementById('login').style.display='none';
+    document.getElementById('dash').style.display='block';
+    render(d);
+  }).catch(function(){alert('Could not reach the server.');});
+}
+
+// auto-login if key already in this browser session
+(function(){var k=sessionStorage.getItem('bmKey');if(k){KEY=k;load();}})();
+
+function render(d){
+  document.getElementById('stamp').textContent='Updated '+new Date(d.generatedAt).toLocaleString('en-GB');
+
+  /* cards */
+  var t=d.totals;
+  document.getElementById('cards').innerHTML=[
+    card(fmt(t.revenue12m),'Gross revenue'),
+    card(fmt(t.profit12m),'Profit recorded'),
+    card(t.dealsWon12m,'Charters won'),
+    card(t.openDeals,'Open enquiries'),
+    card(t.activeAmbassadors,'Active ambassadors'),
+    card(t.pendingApplications,'Applications waiting')
+  ].join('');
+  function card(v,l){return '<div class="card"><div class="v">'+v+'</div><div class="l">'+l+'</div></div>';}
+
+  /* missing profit warning */
+  var mp=d.missingProfit||[];
+  var warn=document.getElementById('profitWarn');
+  if(mp.length){
+    warn.style.display='block';
+    warn.innerHTML='<b>'+mp.length+' closed-won deal'+(mp.length>1?'s':'')+' missing a profit figure</b> — commissions can\'t be calculated for these until you fill in <i>BM — Blue Meridian profit on this deal</i> in HubSpot: '+mp.map(function(x){return esc(x.name||('Deal '+x.id));}).join(' · ');
+  } else warn.style.display='none';
+
+  /* sources */
+  var srcKeys=Object.keys(d.bySource);
+  document.getElementById('sourceTbl').innerHTML = srcKeys.length ? tbl(
+    ['Source','Charters','Gross revenue','Profit',''],
+    srcKeys.map(function(k){
+      var s=d.bySource[k];
+      var max=Math.max.apply(null,srcKeys.map(function(x){return d.bySource[x].revenue;}))||1;
+      return [esc(k),s.deals,fmt(s.revenue),fmt(s.profit),'<div class="bar" style="width:'+Math.round(s.revenue/max*100)+'%"></div>'];
+    }),[false,true,true,true,false]) : empty('No closed charters yet — this fills in as deals are won in HubSpot.');
+
+  /* monthly */
+  var months=Object.keys(d.monthly).sort();
+  document.getElementById('monthTbl').innerHTML = months.length ? tbl(
+    ['Month','Charters','Gross revenue','Profit'],
+    months.map(function(m){var x=d.monthly[m];return [m,x.deals,fmt(x.revenue),fmt(x.profit)];}),
+    [false,true,true,true]) : empty('Nothing closed yet. Your first won deal starts this table.');
+
+  /* applications */
+  var apps=d.applicants||[];
+  document.getElementById('apps').innerHTML = apps.length ? apps.map(function(a){
+    var sug=suggestCode(a.name||a.email);
+    return '<div class="app-card">'+
+      '<div class="top"><span class="name">'+esc(a.name||a.email)+'</span><span class="muted">'+esc(a.email)+(a.city?' · '+esc(a.city):'')+(a.recruitedBy?' · recruited by <b>'+esc(a.recruitedBy)+'</b>':'')+'</span></div>'+
+      (a.social?'<div class="muted">'+esc(a.social)+'</div>':'')+
+      (a.about?'<div class="about">'+esc(a.about)+'</div>':'')+
+      '<div class="activate">'+
+        '<input value="'+sug+'" id="code-'+a.contactId+'" maxlength="20" aria-label="Referral code">'+
+        '<button onclick="activate(\''+esc(a.email)+'\',\''+a.contactId+'\')">Activate ambassador</button>'+
+        '<span id="msg-'+a.contactId+'"></span>'+
+      '</div>'+
+      '<div class="linkbox" id="link-'+a.contactId+'"></div>'+
+    '</div>';
+  }).join('') : empty('No applications waiting. New ones appear here the moment someone applies on ambassador.bluemeridian.ai.');
+
+  /* ambassadors */
+  var amb=d.ambassadors||[];
+  document.getElementById('ambTbl').innerHTML = amb.length ? tbl(
+    ['Ambassador','Code','Tier','12m revenue','Profit generated','Commission','Recruits','Override','Total owed (12m)'],
+    amb.map(function(a){
+      return [esc(a.name)+'<br><span class="muted">'+esc(a.email)+'</span>',
+        '<span class="pill soft">'+esc(a.code)+'</span>',
+        '<span class="pill gold">'+a.tier+' · '+pct(a.rate)+'</span>',
+        fmt(a.revenue12m), fmt(a.profit12m)+(a.dealsMissingProfit?' <span class="muted">('+a.dealsMissingProfit+' deal'+(a.dealsMissingProfit>1?'s':'')+' missing profit)</span>':''),
+        fmt(a.commission12m), a.recruitCount||0, fmt(a.override12m), '<b>'+fmt(a.totalOwed12m)+'</b>'];
+    }),[false,false,false,true,true,true,true,true,true]) : empty('No active ambassadors yet. Activate your first applicant above and their referral link starts tracking immediately.');
+}
+
+function activate(email,id){
+  var code=document.getElementById('code-'+id).value.trim().toUpperCase();
+  var msg=document.getElementById('msg-'+id);
+  msg.className='';msg.textContent='Working…';
+  api('/api/admin/activate',{method:'POST',body:JSON.stringify({email:email,code:code})}).then(function(r){
+    if(r.ok){
+      msg.className='ok';msg.textContent='Activated';
+      var box=document.getElementById('link-'+id);
+      box.style.display='flex';
+      box.innerHTML='<span>Their referral link: <b>'+esc(r.link)+'</b></span><button onclick="navigator.clipboard.writeText(\''+esc(r.link)+'\');this.textContent=\'Copied\'">Copy link</button>';
+    } else {
+      msg.className='err';msg.textContent=r.error||'Failed';
+    }
+  });
+}
+
+function suggestCode(name){
+  var first=(name||'').split(' ')[0].replace(/[^A-Za-z]/g,'').toUpperCase().slice(0,8)||'AMB';
+  return first+String(Math.floor(10+Math.random()*90));
+}
+function tbl(heads,rows,numCols){
+  return '<table><thead><tr>'+heads.map(function(h,i){return '<th'+(numCols&&numCols[i]?' class="num"':'')+'>'+h+'</th>';}).join('')+'</tr></thead><tbody>'+
+    rows.map(function(r){return '<tr>'+r.map(function(c,i){return '<td'+(numCols&&numCols[i]?' class="num"':'')+'>'+c+'</td>';}).join('')+'</tr>';}).join('')+'</tbody></table>';
+}
+function empty(t){return '<div class="empty">'+t+'</div>';}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+</script>
+</body>
+</html>
