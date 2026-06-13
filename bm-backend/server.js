@@ -86,6 +86,23 @@ async function searchAll(objectType, filters, properties) {
 const clean = (v, max = 500) => String(v ?? '').trim().slice(0, max);
 const validEmail = (e) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
 
+// HubSpot account (portal) id — needed to build working record links. Fetched once and cached.
+let _portalId = null, _portalTried = false;
+async function getPortalId() {
+  if (_portalTried) return _portalId;
+  _portalTried = true;
+  for (const ep of ['/account-info/v3/details', '/integrations/v1/me']) {
+    try {
+      const r = await hs(ep);
+      if (r.status < 300 && r.json && r.json.portalId) { _portalId = String(r.json.portalId); break; }
+    } catch (e) { console.error('portalId lookup failed on', ep, e.message); }
+  }
+  if (!_portalId) console.error('Could not determine HubSpot portal id — record links will fall back to the CRM home.');
+  return _portalId;
+}
+const recordUrl = (portalId, objectType, id) =>
+  portalId ? `https://app.hubspot.com/contacts/${portalId}/record/${objectType}/${id}` : 'https://app.hubspot.com/';
+
 /* ================================================================ */
 /*  PUBLIC: ambassador application                                   */
 /* ================================================================ */
@@ -312,6 +329,7 @@ app.get('/api/admin/summary', requireAdmin, async (req, res) => {
       .map((d) => ({ id: d.id, name: d.properties.dealname, amount: num(d.properties.amount), closedate: d.properties.closedate }));
 
     /* ----- Open enquiries (anything not closed), for drill-down ----- */
+    const portalId = await getPortalId();
     const mapEnquiry = (d) => {
       const fromMs = toMs(d.properties.bm_last_touched) || toMs(d.properties.createdate);
       const ageDays = fromMs ? Math.floor((now - fromMs) / 86400000) : null;
@@ -325,7 +343,7 @@ app.get('/api/admin/summary', requireAdmin, async (req, res) => {
         created: d.properties.createdate || null,
         lastTouched: toMs(d.properties.bm_last_touched) ? new Date(toMs(d.properties.bm_last_touched)).toISOString() : null,
         ageDays,
-        hubspotUrl: `https://app.hubspot.com/contacts/objects/0-3/${d.id}`,
+        hubspotUrl: recordUrl(portalId, '0-3', d.id),
       };
     };
     const openAll = deals.filter(isOpen);
@@ -349,6 +367,7 @@ app.get('/api/admin/summary', requireAdmin, async (req, res) => {
     res.json({
       ok: true,
       generatedAt: new Date().toISOString(),
+      portalId,
       totals, bySource, monthly,
       ambassadors: ambRows.sort((x, y) => y.revenue12m - x.revenue12m),
       applicants: applicants.map((a) => ({

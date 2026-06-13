@@ -432,6 +432,7 @@ function restoreEnq(btn,id){enqAction(btn,'/api/admin/enquiry/restore',id);}
 function touchEnq(btn,id){enqAction(btn,'/api/admin/enquiry/touch',id);}
 
 function render(d){
+  window.BM_PORTAL=d.portalId||'';
   document.getElementById('stamp').textContent='Updated '+new Date(d.generatedAt).toLocaleString('en-GB');
   var t=d.totals;
   document.getElementById('cards').innerHTML=[
@@ -524,7 +525,7 @@ function render(d){
         '<div><div class="k">Recruited by</div><div class="val">'+(a.recruitedBy?esc(a.recruitedBy):'\u2014')+'</div></div>'+
         '<div><div class="k">Joined</div><div class="val">'+dt(a.joined)+'</div></div>'+
         '<div><div class="k">Deals (12m)</div><div class="val">'+a.deals12m+'</div></div>'+
-        '<div><div class="k">HubSpot</div><div class="val"><a href="https://app.hubspot.com/contacts/objects/0-1/'+esc(a.contactId)+'" target="_blank" rel="noopener">Open contact \u2197</a></div></div>'+
+        '<div><div class="k">HubSpot</div><div class="val">'+(window.BM_PORTAL?'<a href="https://app.hubspot.com/contacts/'+window.BM_PORTAL+'/record/0-1/'+esc(a.contactId)+'" target="_blank" rel="noopener">Open contact \u2197</a>':'<span class="muted">contact id '+esc(a.contactId)+'</span>')+'</div></div>'+
         '</div></td></tr>';
       return main+detail;
     }).join('');
