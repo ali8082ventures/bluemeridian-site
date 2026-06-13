@@ -205,7 +205,7 @@ app.get('/api/admin/summary', requireAdmin, async (req, res) => {
     const deals = await searchAll(
       'deals',
       [{ propertyName: 'createdate', operator: 'GTE', value: String(now - 3 * 365 * 24 * 3600 * 1000) }],
-      ['dealname', 'amount', 'dealstage', 'closedate', 'createdate', 'bm_ambassador_code', 'bm_deal_profit', 'bm_destination']
+      ['dealname', 'amount', 'dealstage', 'closedate', 'createdate', 'bm_ambassador_code', 'bm_deal_profit', 'bm_destination', 'bm_admin_archived', 'bm_last_touched']
     );
 
     // 2) Ambassador contacts + applicants.
@@ -223,6 +223,14 @@ app.get('/api/admin/summary', requireAdmin, async (req, res) => {
     const won = deals.filter((d) => (d.properties.dealstage || '').toLowerCase().includes('closedwon'));
     const num = (v) => (v ? parseFloat(v) || 0 : 0);
     const within12m = (d) => d.properties.closedate && new Date(d.properties.closedate).getTime() >= yearAgo;
+    const isOpen = (d) => !/closed/.test((d.properties.dealstage || '').toLowerCase());
+    const isArchived = (d) => d.properties.bm_admin_archived === 'true';
+    const toMs = (v) => {
+      if (!v) return null;
+      if (/^\d+$/.test(String(v))) return Number(v);
+      const t = Date.parse(v);
+      return isNaN(t) ? null : t;
+    };
 
     /* ----- Platform totals + by source + monthly series ----- */
     const won12 = won.filter(within12m);
@@ -230,7 +238,7 @@ app.get('/api/admin/summary', requireAdmin, async (req, res) => {
       revenue12m: won12.reduce((s, d) => s + num(d.properties.amount), 0),
       profit12m: won12.reduce((s, d) => s + num(d.properties.bm_deal_profit), 0),
       dealsWon12m: won12.length,
-      openDeals: deals.filter((d) => !/closed/.test((d.properties.dealstage || '').toLowerCase())).length,
+      openDeals: deals.filter((d) => isOpen(d) && !isArchived(d)).length,
       activeAmbassadors: ambassadors.length,
       pendingApplications: applicants.length,
     };
@@ -304,9 +312,10 @@ app.get('/api/admin/summary', requireAdmin, async (req, res) => {
       .map((d) => ({ id: d.id, name: d.properties.dealname, amount: num(d.properties.amount), closedate: d.properties.closedate }));
 
     /* ----- Open enquiries (anything not closed), for drill-down ----- */
-    const openEnquiries = deals
-      .filter((d) => !/closed/.test((d.properties.dealstage || '').toLowerCase()))
-      .map((d) => ({
+    const mapEnquiry = (d) => {
+      const fromMs = toMs(d.properties.bm_last_touched) || toMs(d.properties.createdate);
+      const ageDays = fromMs ? Math.floor((now - fromMs) / 86400000) : null;
+      return {
         id: d.id,
         name: d.properties.dealname || '(unnamed enquiry)',
         destination: d.properties.bm_destination || null,
@@ -314,8 +323,15 @@ app.get('/api/admin/summary', requireAdmin, async (req, res) => {
         stage: d.properties.dealstage || null,
         source: d.properties.bm_ambassador_code ? `Ambassador (${d.properties.bm_ambassador_code})` : 'Direct / website',
         created: d.properties.createdate || null,
+        lastTouched: toMs(d.properties.bm_last_touched) ? new Date(toMs(d.properties.bm_last_touched)).toISOString() : null,
+        ageDays,
         hubspotUrl: `https://app.hubspot.com/contacts/objects/0-3/${d.id}`,
-      }))
+      };
+    };
+    const openAll = deals.filter(isOpen);
+    const openEnquiries = openAll.filter((d) => !isArchived(d)).map(mapEnquiry)
+      .sort((a, b) => (b.ageDays || 0) - (a.ageDays || 0));
+    const archivedEnquiries = openAll.filter(isArchived).map(mapEnquiry)
       .sort((a, b) => new Date(b.created || 0) - new Date(a.created || 0));
 
     /* ----- Geographic distribution (by ISO alpha-2 country) ----- */
@@ -349,6 +365,7 @@ app.get('/api/admin/summary', requireAdmin, async (req, res) => {
         applied: a.properties.createdate,
       })),
       openEnquiries,
+      archivedEnquiries,
       byCountry,
       missingProfit,
       rules: { tiers: TIERS, overrideRate: OVERRIDE_RATE },
@@ -390,6 +407,33 @@ app.post('/api/admin/activate', requireAdmin, async (req, res) => {
     console.error('activate error', e.message);
     res.status(500).json({ ok: false, error: 'Something went wrong.' });
   }
+});
+
+/* ----- Enquiry housekeeping: archive / restore / refresh freshness ----- */
+async function patchDeal(id, properties, res, label) {
+  const dealId = String(id || '').replace(/[^0-9]/g, '');
+  if (!dealId) return res.status(400).json({ ok: false, error: 'Missing enquiry id.' });
+  const r = await hs(`/crm/v3/objects/deals/${dealId}`, 'PATCH', { properties });
+  if (r.status >= 300) {
+    console.error(`${label} failed`, r.status, JSON.stringify(r.json).slice(0, 200));
+    return res.status(502).json({ ok: false, error: 'HubSpot update failed.' });
+  }
+  return res.json({ ok: true });
+}
+
+app.post('/api/admin/enquiry/archive', requireAdmin, async (req, res) => {
+  try { await patchDeal(req.body?.dealId, { bm_admin_archived: 'true' }, res, 'archive'); }
+  catch (e) { console.error('archive error', e.message); res.status(500).json({ ok: false, error: 'Something went wrong.' }); }
+});
+
+app.post('/api/admin/enquiry/restore', requireAdmin, async (req, res) => {
+  try { await patchDeal(req.body?.dealId, { bm_admin_archived: 'false' }, res, 'restore'); }
+  catch (e) { console.error('restore error', e.message); res.status(500).json({ ok: false, error: 'Something went wrong.' }); }
+});
+
+app.post('/api/admin/enquiry/touch', requireAdmin, async (req, res) => {
+  try { await patchDeal(req.body?.dealId, { bm_last_touched: new Date().toISOString() }, res, 'touch'); }
+  catch (e) { console.error('touch error', e.message); res.status(500).json({ ok: false, error: 'Something went wrong.' }); }
 });
 
 /* ----- Dashboard page + health ----- */

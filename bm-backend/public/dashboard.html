@@ -85,6 +85,16 @@ tr.amb-detail td{background:#FAF8F1;font-size:.84rem;color:var(--ink-soft)}
 .region-row:last-child{border-bottom:none}
 .region-row .cnt{font-family:'Fraunces',serif}
 .region-row .cnt .p{color:#9a7a1e;font-size:.78rem;margin-left:6px}
+.age{display:inline-flex;align-items:center;gap:5px;font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:999px;margin-top:5px}
+.age .dot{width:7px;height:7px;border-radius:50%;display:inline-block}
+.age.green{background:#E7F1EB;color:#2E7D5B}.age.green .dot{background:#2E7D5B}
+.age.amber{background:#FBF1DC;color:#9A7A1E}.age.amber .dot{background:#E0A92E}
+.age.red{background:#F6E2DF;color:#A33A30}.age.red .dot{background:#B0483F}
+.act{display:inline-block;border:1px solid var(--line);background:#fff;border-radius:7px;padding:4px 10px;font-size:.71rem;font-weight:600;cursor:pointer;font-family:inherit;color:var(--ink);margin:0 4px 4px 0;text-decoration:none}
+.act:hover{border-color:var(--gold);color:var(--gold)}
+.act.archive:hover{border-color:var(--red);color:var(--red)}
+.ghostbtn{background:transparent;border:1px solid var(--line);border-radius:999px;padding:8px 16px;font-size:.78rem;font-weight:600;cursor:pointer;font-family:inherit;color:var(--ink-soft)}
+.ghostbtn:hover{border-color:var(--gold);color:var(--gold)}
 footer{padding:40px 0;color:var(--ink-soft);font-size:.76rem;text-align:center}
 @media(max-width:820px){.map-wrap{grid-template-columns:1fr}}
 @media(max-width:760px){th,td{padding:9px 8px;font-size:.78rem}}
@@ -121,6 +131,13 @@ footer{padding:40px 0;color:var(--ink-soft);font-size:.76rem;text-align:center}
     <section id="enquiries">
       <h2>Open enquiries</h2>
       <div id="enqTbl"></div>
+      <div id="archToggleWrap" style="margin-top:14px;display:none">
+        <button id="archToggle" class="ghostbtn">Show archived (<span id="archCount">0</span>)</button>
+      </div>
+      <div id="archWrap" style="display:none;margin-top:16px">
+        <h3 style="font-size:1.05rem;margin-bottom:10px;color:var(--ink-soft)">Archived enquiries</h3>
+        <div id="archTbl"></div>
+      </div>
     </section>
 
     <section>
@@ -360,6 +377,13 @@ function api(path, opts){
 document.getElementById('loginBtn').addEventListener('click',tryLogin);
 document.getElementById('keyInput').addEventListener('keydown',function(e){if(e.key==='Enter')tryLogin();});
 document.getElementById('refreshBtn').addEventListener('click',function(){load();});
+document.getElementById('archToggle').addEventListener('click',function(){
+  var w=document.getElementById('archWrap');
+  var show=w.style.display==='none';
+  w.style.display=show?'block':'none';
+  var n=document.getElementById('archCount').textContent;
+  this.innerHTML=(show?'Hide':'Show')+' archived (<span id="archCount">'+n+'</span>)';
+});
 function tryLogin(){KEY=document.getElementById('keyInput').value.trim();if(KEY)load(true);}
 function load(fromLogin){
   api('/api/admin/summary').then(function(d){
@@ -378,6 +402,34 @@ function tbl(heads,rows,numCols){
     rows.map(function(r){return '<tr>'+r.map(function(c,i){return '<td'+(numCols&&numCols[i]?' class="num"':'')+'>'+c+'</td>';}).join('')+'</tr>';}).join('')+'</tbody></table>';
 }
 function empty(t){return '<div class="empty">'+t+'</div>';}
+
+function ageChip(days){
+  if(days==null) return '';
+  var cls=days>=30?'red':(days>=10?'amber':'green');
+  var label=days<=0?'today':days+'d';
+  return '<span class="age '+cls+'"><span class="dot"></span>'+label+'</span>';
+}
+function enqRow(e,archived){
+  var actions='<a class="act" href="'+esc(e.hubspotUrl)+'" target="_blank" rel="noopener">Open \u2197</a>';
+  if(archived){
+    actions+='<button class="act" onclick="restoreEnq(this,\''+e.id+'\')">Restore</button>';
+  } else {
+    actions+='<button class="act" onclick="touchEnq(this,\''+e.id+'\')">Refresh</button>';
+    actions+='<button class="act archive" onclick="archiveEnq(this,\''+e.id+'\')">Archive</button>';
+  }
+  return [esc(e.name),esc(e.destination||'\u2014'),e.amount?fmt(e.amount):'\u2014',
+    esc(e.stage||'\u2014'),esc(e.source),dt(e.created)+'<br>'+ageChip(e.ageDays),actions];
+}
+function enqAction(btn,path,id){
+  if(btn){btn.disabled=true;btn.textContent='\u2026';}
+  api(path,{method:'POST',body:JSON.stringify({dealId:id})}).then(function(r){
+    if(!r.ok){alert(r.error||'Action failed');if(btn)btn.disabled=false;return;}
+    load();
+  }).catch(function(){alert('Could not reach the server.');if(btn)btn.disabled=false;});
+}
+function archiveEnq(btn,id){enqAction(btn,'/api/admin/enquiry/archive',id);}
+function restoreEnq(btn,id){enqAction(btn,'/api/admin/enquiry/restore',id);}
+function touchEnq(btn,id){enqAction(btn,'/api/admin/enquiry/touch',id);}
 
 function render(d){
   document.getElementById('stamp').textContent='Updated '+new Date(d.generatedAt).toLocaleString('en-GB');
@@ -403,13 +455,23 @@ function render(d){
 
   var enq=d.openEnquiries||[];
   document.getElementById('enqTbl').innerHTML = enq.length ? tbl(
-    ['Enquiry','Destination','Value','Stage','Source','Created',''],
-    enq.map(function(e){return [
-      esc(e.name), esc(e.destination||'\u2014'),
-      e.amount?fmt(e.amount):'\u2014', esc(e.stage||'\u2014'), esc(e.source),
-      dt(e.created), '<a class="link" href="'+esc(e.hubspotUrl)+'" target="_blank" rel="noopener">Open \u2197</a>'
-    ];}),[false,false,true,false,false,false,false]
+    ['Enquiry','Destination','Value','Stage','Source','Created / age','Actions'],
+    enq.map(function(e){return enqRow(e,false);}),[false,false,true,false,false,false,false]
   ) : empty('No open enquiries right now. Live enquiries from your site appear here.');
+
+  var arch=d.archivedEnquiries||[];
+  var atw=document.getElementById('archToggleWrap');
+  if(arch.length){
+    atw.style.display='block';
+    document.getElementById('archCount').textContent=arch.length;
+    document.getElementById('archTbl').innerHTML=tbl(
+      ['Enquiry','Destination','Value','Stage','Source','Created / age','Actions'],
+      arch.map(function(e){return enqRow(e,true);}),[false,false,true,false,false,false,false]);
+  } else {
+    atw.style.display='none';
+    document.getElementById('archWrap').style.display='none';
+    document.getElementById('archTbl').innerHTML='';
+  }
 
   var srcKeys=Object.keys(d.bySource);
   document.getElementById('sourceTbl').innerHTML = srcKeys.length ? tbl(

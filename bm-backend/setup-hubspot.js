@@ -54,6 +54,9 @@ function textarea(name, label) {
 function number(name, label) {
   return { name, label, type: 'number', fieldType: 'number', groupName: GROUP_NAME };
 }
+function datetime(name, label) {
+  return { name, label, type: 'datetime', fieldType: 'date', groupName: GROUP_NAME };
+}
 function bool(name, label) {
   return {
     name, label, type: 'enumeration', fieldType: 'booleancheckbox', groupName: GROUP_NAME,
@@ -121,6 +124,10 @@ const dealProps = [
   // Ambassador programme
   text('bm_ambassador_code', 'BM — Ambassador code (who referred this deal)'),
   number('bm_deal_profit', 'BM — Blue Meridian profit on this deal'),
+
+  // Dashboard admin: enquiry housekeeping
+  bool('bm_admin_archived', 'BM — Enquiry archived (parked from dashboard)'),
+  datetime('bm_last_touched', 'BM — Enquiry last refreshed (freshness clock)'),
 ];
 
 async function createProps(objectType, props) {
