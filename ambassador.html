@@ -601,5 +601,28 @@ footer{background:var(--navy-panel);color:rgba(255,255,255,.65);padding:54px 0 4
   });
 })();
 </script>
+<script>/* bm-logo-swap: show uploaded logo image when set, else keep the text logo */
+(function(){
+  var LOGO='https://api.bluemeridian.ai/media/logo';
+  function swap(el){
+    if(!el||el.dataset.bmLogoDone) return; el.dataset.bmLogoDone='1';
+    var svg=el.querySelector('svg');
+    var h= svg ? (parseInt(svg.getAttribute('height'),10)||26) : (el.classList.contains('bmr-logo')?20:24);
+    var img=new Image(); img.alt='Blue Meridian';
+    img.onload=function(){ img.style.cssText='height:'+h+'px;width:auto;display:block;max-width:240px'; el.textContent=''; el.appendChild(img); };
+    img.onerror=function(){};
+    img.src=LOGO;
+  }
+  function run(){ document.querySelectorAll('.logo, .bmr-logo').forEach(swap); }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', run); else run();
+  if(window.MutationObserver){
+    new MutationObserver(function(muts){
+      for(var i=0;i<muts.length;i++){var a=muts[i].addedNodes;for(var j=0;j<a.length;j++){var n=a[j];if(n.nodeType!==1)continue;
+        if(n.matches&&n.matches('.bmr-logo'))swap(n);
+        if(n.querySelectorAll)n.querySelectorAll('.bmr-logo, .logo').forEach(swap);}}
+    }).observe(document.documentElement,{childList:true,subtree:true});
+  }
+})();
+</script>
 </body>
 </html>
