@@ -888,6 +888,7 @@ window.trW=function(s){if(BM_LANG==='en'||!s)return s;var w=BM_I18N[BM_LANG].w||
   var BM_MEDIA_API='https://api.bluemeridian.ai';
   document.querySelectorAll('.at-photo').forEach(function(img){
     var fallback=(img.dataset.srcs||'').split(',').filter(Boolean);
+    var focusList=[];
     function rotate(list){
       if(!list||!list.length){ img.remove(); return; }
       var start=Math.floor(Math.random()*list.length),tries=0;
@@ -896,6 +897,7 @@ window.trW=function(s){if(BM_LANG==='en'||!s)return s;var w=BM_I18N[BM_LANG].w||
         tries++;
         img.onerror=function(){attempt((i+1)%list.length)};
         img.onload=function(){img.classList.add('on')};
+        var __fy=focusList[i]; img.style.objectPosition=(__fy!=null&&__fy!=='')?('center '+__fy+'%'):'';
         img.src=list[i];
       }
       attempt(start);
@@ -903,7 +905,9 @@ window.trW=function(s){if(BM_LANG==='en'||!s)return s;var w=BM_I18N[BM_LANG].w||
     var slot=img.dataset.slot;
     if(slot){
       fetch(BM_MEDIA_API+'/media/'+slot+'/list').then(function(r){return r.json();}).then(function(d){
-        var live=(d&&d.ok&&d.images&&d.images.length)?d.images.map(function(u){return u.indexOf('http')===0?u:BM_MEDIA_API+u;}):fallback;
+        var hasLive=(d&&d.ok&&d.images&&d.images.length);
+        var live=hasLive?d.images.map(function(u){return u.indexOf('http')===0?u:BM_MEDIA_API+u;}):fallback;
+        focusList=(hasLive&&d.focus&&d.focus.length===d.images.length)?d.focus.slice():[];
         rotate(live);
       }).catch(function(){ rotate(fallback); });
     } else { rotate(fallback); }
