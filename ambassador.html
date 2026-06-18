@@ -607,7 +607,7 @@ footer{background:var(--navy-panel);color:rgba(255,255,255,.65);padding:54px 0 4
   function swap(el){
     if(!el||el.dataset.bmLogoDone) return; el.dataset.bmLogoDone='1';
     var svg=el.querySelector('svg');
-    var h= svg ? (parseInt(svg.getAttribute('height'),10)||26) : (el.classList.contains('bmr-logo')?20:24);
+    var h= Math.round((svg ? (parseInt(svg.getAttribute('height'),10)||26) : (el.classList.contains('bmr-logo')?20:24)) * 1.4);
     var img=new Image(); img.alt='Blue Meridian';
     img.onload=function(){ img.style.cssText='height:'+h+'px;width:auto;display:block;max-width:240px'; el.textContent=''; el.appendChild(img); };
     img.onerror=function(){};
