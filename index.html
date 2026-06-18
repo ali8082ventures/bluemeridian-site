@@ -693,7 +693,7 @@
           <path d="M158 96 q-12 -2 -18 -14" stroke="#5B6E54" stroke-width="3" fill="none" stroke-linecap="round"/>
           <path d="M200 90 q14 -4 18 -16" stroke="#5B6E54" stroke-width="3" fill="none" stroke-linecap="round"/>
         </svg>
-        <img class="at-photo" alt="Flowers by Lotus Boutique" data-srcs="/assets/partners/lotus-1.jpg,/assets/partners/lotus-2.jpg,/assets/partners/lotus-3.jpg,/assets/partners/lotus-4.jpg">
+        <img class="at-photo" alt="Flowers by Lotus Boutique" data-slot="home-flowers" data-srcs="/assets/partners/lotus-1.jpg,/assets/partners/lotus-2.jpg,/assets/partners/lotus-3.jpg,/assets/partners/lotus-4.jpg">
       </div>
       <div class="at-body">
         <p class="tkicker">With Lotus Boutique · Flowers</p>
@@ -719,7 +719,7 @@
             <circle cx="226" cy="92" r="5" fill="#A07C3B"/>
           </g>
         </svg>
-        <img class="at-photo" alt="Private photography aboard" data-srcs="/assets/partners/photo-1.jpg,/assets/partners/photo-2.jpg,/assets/partners/photo-3.jpg,/assets/partners/photo-4.jpg">
+        <img class="at-photo" alt="Private photography aboard" data-slot="home-photography" data-srcs="/assets/partners/photo-1.jpg,/assets/partners/photo-2.jpg,/assets/partners/photo-3.jpg,/assets/partners/photo-4.jpg">
       </div>
       <div class="at-body">
         <p class="tkicker">Private photography</p>
@@ -885,18 +885,28 @@ window.trW=function(s){if(BM_LANG==='en'||!s)return s;var w=BM_I18N[BM_LANG].w||
   let HINTS=(window.BM_I18N&&BM_I18N[BM_LANG].hints)||['Ask the concierge…'];
   let hi=0;setInterval(()=>{if(document.activeElement!==brief&&!brief.value){hi=(hi+1)%HINTS.length;brief.placeholder=HINTS[hi];}},4600);
   brief.addEventListener('keydown',e=>{if(e.key==='Enter')runSearch();});
+  var BM_MEDIA_API='https://api.bluemeridian.ai';
   document.querySelectorAll('.at-photo').forEach(function(img){
-    var list=(img.dataset.srcs||'').split(',').filter(Boolean);
-    if(!list.length)return;
-    var start=Math.floor(Math.random()*list.length),tries=0;
-    function attempt(i){
-      if(tries>=list.length){img.remove();return}
-      tries++;
-      img.onerror=function(){attempt((i+1)%list.length)};
-      img.onload=function(){img.classList.add('on')};
-      img.src=list[i];
+    var fallback=(img.dataset.srcs||'').split(',').filter(Boolean);
+    function rotate(list){
+      if(!list||!list.length){ img.remove(); return; }
+      var start=Math.floor(Math.random()*list.length),tries=0;
+      function attempt(i){
+        if(tries>=list.length){img.remove();return}
+        tries++;
+        img.onerror=function(){attempt((i+1)%list.length)};
+        img.onload=function(){img.classList.add('on')};
+        img.src=list[i];
+      }
+      attempt(start);
     }
-    attempt(start);
+    var slot=img.dataset.slot;
+    if(slot){
+      fetch(BM_MEDIA_API+'/media/'+slot+'/list').then(function(r){return r.json();}).then(function(d){
+        var live=(d&&d.ok&&d.images&&d.images.length)?d.images.map(function(u){return u.indexOf('http')===0?u:BM_MEDIA_API+u;}):fallback;
+        rotate(live);
+      }).catch(function(){ rotate(fallback); });
+    } else { rotate(fallback); }
   });
   document.querySelectorAll('.at-cta').forEach(function(b){
     b.addEventListener('click',function(){
