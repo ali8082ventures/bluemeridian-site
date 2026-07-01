@@ -331,7 +331,12 @@
   .bme-done{text-align:center;padding:6px 0}
   .bme-done .chat{display:inline-flex;align-items:center;gap:8px;text-decoration:none;border:1px solid var(--gold);color:var(--ink);border-radius:40px;padding:9px 16px;margin:5px;font-size:.8rem}
   .bme-done .chat:hover{background:var(--gold);color:#fff}
-  /* Concierge layer */
+  /* enquiry live support */
+.bme-live{margin-top:18px;padding-top:16px;border-top:1px solid #ece7db;text-align:center}
+.bme-live-label{display:block;font-size:.78rem;color:#8a93a3;margin-bottom:10px}
+.bme-live-btn{display:inline-block;margin:4px;padding:9px 18px;border:1px solid var(--gold);color:var(--ink);border-radius:40px;text-decoration:none;font-size:.82rem;transition:all .15s}
+.bme-live-btn:hover{background:var(--gold);color:#fff}
+/* Concierge layer */
   .bmr-noteCard{max-width:780px;margin:26px 0 4px;padding:18px 24px;border-left:2px solid var(--gold);background:#FBFAF6;border-radius:0 12px 12px 0}
   .bmr-noteCard p{font-family:'Fraunces',serif;font-style:italic;font-weight:300;font-size:1.08rem;color:var(--ink);line-height:1.65;margin:0}
   .bmr-elev{margin:38px 0 6px;padding-top:26px;border-top:1px solid #e8e4d8}
@@ -386,7 +391,7 @@
     <input id="brief" autocomplete="off" placeholder="Ask the concierge — a place, a date, an occasion…">
     <span class="bm-dates askbar-dates"><input type="date" id="bmDF" aria-label="Charter from"><span class="bm-dsep">–</span><input type="date" id="bmDT" aria-label="Charter to"></span><button id="go">ASK</button>
   </div>
-  <nav><a href="#atlas">Journeys</a><a href="#" class="navq" data-q="A crewed yacht in the Mediterranean this summer">Yachts</a><a href="#" class="navq" data-q="A private jet from London this month">Jets</a><a href="#house">Concierge</a></nav>
+  <nav><a href="#atlas">Journeys</a><a href="#" class="navq" data-q="A crewed yacht in the Mediterranean this summer">Yachts</a><a href="#" class="navq" data-q="A private jet from London this month">Jets</a><a href="#" class="navconc">Concierge</a></nav>
 </div></header>
 
 <section class="intro"><div class="wrap">
@@ -941,6 +946,9 @@ window.trW=function(s){if(BM_LANG==='en'||!s)return s;var w=BM_I18N[BM_LANG].w||
   document.querySelectorAll('.navq').forEach(function(n){
     n.addEventListener('click',function(e){e.preventDefault();brief.value=n.dataset.q;runSearch();});
   });
+  document.querySelectorAll('.navconc').forEach(function(n){
+    n.addEventListener('click',function(e){e.preventDefault();openEnquiry('Blue Meridian concierge','experience','');});
+  });
 // ===== AI search — calls the live /api/search and renders results =====
   const palettes=[['#cfe2ef','#eadfca','#8fb5bd'],['#d4e6ef','#f0e6d4','#7fb0bb'],['#f3e3c9','#f7ecd9','#a6c1bf'],['#cddff0','#e9e0cf','#86adb6'],['#e7dcc6','#f2ead9','#8bb2b3'],['#d0e3ec','#eee2cd','#93b9bf']];
   function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
@@ -1324,6 +1332,9 @@ window.trW=function(s){if(BM_LANG==='en'||!s)return s;var w=BM_I18N[BM_LANG].w||
       +'<label class="bme-check"><input type="checkbox" id="bmePartFlowers"> '+t('srvF')+'</label>'
       +'<label class="bme-check"><input type="checkbox" id="bmePartPhoto"> '+t('srvP')+'</label></div>'
       +'<button class="bme-submit" id="bmeSubmit">'+t('send')+'</button>'
+      +'<div class="bme-live"><span class="bme-live-label">'+t('talk')+'</span>'
+      +'<a class="bme-live-btn" href="https://wa.me/447448169575" target="_blank" rel="noopener">'+t('wa')+'</a>'
+      +'<a class="bme-live-btn" href="https://t.me/blue_meridian" target="_blank" rel="noopener">'+t('tg')+'</a></div>'
       +'<p style="font-size:.74rem;color:#8a93a3;margin-top:12px;line-height:1.5">'+t('consent')+' <a href="/privacy.html" target="_blank" style="color:inherit;text-decoration:underline">Privacy &amp; Cookies Policy</a>.</p>'
       +'<p class="bme-err" id="bmeErr">Please enter your first name and a valid email.</p>';
     modal.classList.add('on');
