@@ -1437,5 +1437,18 @@ window.trW=function(s){if(BM_LANG==='en'||!s)return s;var w=BM_I18N[BM_LANG].w||
   }catch(e){ start(); }
 })();
 </script>
+<!-- Blue Meridian analytics (first-party, privacy-respecting) -->
+<script>
+(function(){
+  try{
+    if(navigator.doNotTrack==='1'||window.doNotTrack==='1') return;
+    var payload={ p: location.pathname, r: document.referrer||'', sw: (screen&&screen.width)||0, l: (navigator.language||'').slice(0,12) };
+    var body=JSON.stringify(payload);
+    var url='/api/track';
+    if(navigator.sendBeacon){ navigator.sendBeacon(url, new Blob([body],{type:'application/json'})); }
+    else { fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:body,keepalive:true}).catch(function(){}); }
+  }catch(e){}
+})();
+</script>
 </body>
 </html>
